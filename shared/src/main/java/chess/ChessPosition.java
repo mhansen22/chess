@@ -45,7 +45,14 @@ public class ChessPosition {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
+
+        //change here:
         ChessPosition that = (ChessPosition) obj;
         return row == that.row && col == that.col;
+    }
+
+    @Override
+    public int hashCode() {
+        return 13 * row + col;
     }
 }
