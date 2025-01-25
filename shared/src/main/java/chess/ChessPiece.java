@@ -53,14 +53,25 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceType pieceType = getPieceType();
 
-        PieceMovesCalculator calculator = new BishopMovesCalculator();
-
-        //use switch instead of if, so if bishop then call Bishopmovescalculator
+        //check what each type is
+        //probably a more efficient way than craeting new ones each time
         switch (pieceType) {
             case BISHOP:
+                PieceMovesCalculator calculator = new BishopMovesCalculator();
                 return calculator.piecesMove(board, myPosition);
             case KING:
-                return null;
+                PieceMovesCalculator calculator2 = new KingMovesCalculator();
+                return calculator2.piecesMove(board, myPosition);
+            case KNIGHT:
+                PieceMovesCalculator calculator3 = new KnightMovesCalculator();
+                return calculator3.piecesMove(board, myPosition);
+
+            case QUEEN:
+                PieceMovesCalculator calculator5 = new QueenMovesCalculator();
+                return calculator5.piecesMove(board, myPosition);
+            case ROOK:
+                PieceMovesCalculator calculator6 = new RookMovesCalculator();
+                return calculator6.piecesMove(board, myPosition);
         }
         return null;
     }

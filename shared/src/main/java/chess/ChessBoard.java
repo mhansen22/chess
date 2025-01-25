@@ -18,7 +18,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-
+        //array is 0-7 index, chess board is 1-8
+        //use this to transfer
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
@@ -30,6 +31,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
+        //array is 0-7 index, chess board is 1-8
+        //use this to transfer
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 

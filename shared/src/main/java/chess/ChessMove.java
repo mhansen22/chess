@@ -47,6 +47,7 @@ public class ChessMove {
     public String toString() {
         return "startposition: " + startPosition + " endposition: " + endPosition + " promotionPiece: " + promotionPiece;
     }
+
     @Override
     public int hashCode() {
         int result = startPosition.hashCode();
