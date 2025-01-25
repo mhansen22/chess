@@ -137,6 +137,99 @@ class KnightMovesCalculator extends PieceMovesCalculator {
     }
 }
 
+class PawnMovesCalculator extends PieceMovesCalculator {
+
+    @Override
+    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        //for color and position
+        ChessPiece piece_curr_pos = board.getPiece(position);
+        ChessGame.TeamColor teamColor = piece_curr_pos.getTeamColor();
+
+        //list for PieceType, this is for promotion pieces where the pawn flips at the end of the board!!
+        //make list accessable in whole func
+        ArrayList<ChessPiece.PieceType> promotion_piece_types = new ArrayList<>();
+        promotion_piece_types.add(ChessPiece.PieceType.ROOK);
+        promotion_piece_types.add(ChessPiece.PieceType.KNIGHT);
+        promotion_piece_types.add(ChessPiece.PieceType.BISHOP);
+        promotion_piece_types.add(ChessPiece.PieceType.QUEEN);
+
+        //direction based on color
+        int direction = 1;
+        boolean white = (teamColor == ChessGame.TeamColor.WHITE);
+        if (white == true) {
+            direction = 1;
+        } else {
+            direction = -1;
+        }
+
+        //normal pawn one step move
+        int next_x = position.getRow() + direction;
+
+        //check in bounds
+        if (next_x >=1 && next_x <= 8) {
+            ChessPosition next_position = new ChessPosition(next_x, position.getColumn());
+            ChessPiece piece_next_pos = board.getPiece(next_position);
+            if (piece_next_pos == null) {
+                //for promotion piece, if the next move is the top/bottom of board, then add promotion Type
+                if (next_x == 8 || next_x == 1) {
+                    for (ChessPiece.PieceType promotionType : promotion_piece_types) {
+                        moves.add(new ChessMove(position, next_position, promotionType));
+                    }
+                } else {
+                    moves.add(new ChessMove(position, next_position, null));
+                }
+            }
+        }
+
+        //ugh why do pawns have to be sooo confusing :/
+        int[] diagonal_y = {-1, 1};
+        int[] diagonal_x = {1, -1};
+
+        for (int i = 0; i < diagonal_x.length; i++) {
+            int new_y = position.getColumn() + diagonal_y[i];
+            if (new_y >= 1 && new_y <= 8) {
+                int new_x = position.getRow() + direction;
+                if (new_x >= 1 && new_x <= 8) {
+                    ChessPosition diag_pos = new ChessPosition(new_x, new_y);
+                    ChessPiece piece_diag_pos = board.getPiece(diag_pos);
+                    if (piece_diag_pos != null && piece_diag_pos.getTeamColor() != teamColor) {
+                        //can also capture enemy and have promotion piece
+                        if (new_x == 8 || new_x == 1) {
+                            for (ChessPiece.PieceType promotionType : promotion_piece_types) {
+                                moves.add(new ChessMove(position, diag_pos, promotionType));
+                            }
+                        } else {
+                            moves.add(new ChessMove(position, diag_pos, null));
+                        }
+                    }
+                }
+            }
+        }
+
+        //first pawn move!! (why is chess this wayy...)
+        //in order to move two spots
+        if ((white && position.getRow() == 2) || (!white && position.getRow() == 7)) {
+
+            //still has to move in the correct direction
+            int next_next_x = position.getRow() + (2 * direction);
+            if (next_next_x >= 1 && next_next_x <= 8) {
+                ChessPosition next_position = new ChessPosition(next_x, position.getColumn());
+                ChessPiece piece_next_pos = board.getPiece(next_position);
+                ChessPosition next_next_pos = new ChessPosition(next_next_x, position.getColumn());
+                ChessPiece piece_next_next_pos = board.getPiece(next_next_pos);
+
+                //both places in front MUST be empty
+                if (piece_next_pos == null && piece_next_next_pos == null) {
+                    moves.add(new ChessMove(position, next_next_pos, null));
+                }
+            }
+        }
+        return moves;
+    }
+}
+
 class QueenMovesCalculator extends PieceMovesCalculator {
 
     @Override
