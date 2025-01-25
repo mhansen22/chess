@@ -172,7 +172,7 @@ class PawnMovesCalculator extends PieceMovesCalculator {
             ChessPosition next_position = new ChessPosition(next_x, position.getColumn());
             ChessPiece piece_next_pos = board.getPiece(next_position);
             if (piece_next_pos == null) {
-                //for promotion piece, if the next move is the top/bottom of board, then add promotion Type
+                // promotion piece --> if the next move is the top/bottom of board, then add promotion Type
                 if (next_x == 8 || next_x == 1) {
                     for (ChessPiece.PieceType promotionType : promotion_piece_types) {
                         moves.add(new ChessMove(position, next_position, promotionType));
