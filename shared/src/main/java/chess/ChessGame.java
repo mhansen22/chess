@@ -96,6 +96,14 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
 
+        TeamColor otherTeamColor;
+        if (teamColor == TeamColor.WHITE) {
+            otherTeamColor = TeamColor.BLACK;
+        } else {
+            otherTeamColor = TeamColor.WHITE;
+        }
+        ChessBoard board = getBoard();
+        ChessPosition kingPosition = null;
     }
 
     /**
