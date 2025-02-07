@@ -70,7 +70,6 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> validMoves = validMoves(startPosition);
-
         if (piece == null) {
             throw new InvalidMoveException("There is no piece at that position!");
         }
@@ -95,15 +94,33 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
-        TeamColor otherTeamColor;
-        if (teamColor == TeamColor.WHITE) {
-            otherTeamColor = TeamColor.BLACK;
-        } else {
-            otherTeamColor = TeamColor.WHITE;
-        }
         ChessBoard board = getBoard();
         ChessPosition kingPosition = null;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                ChessPosition position = new ChessPosition(x+1, y+1);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == KING) {
+                    kingPosition = new ChessPosition(x, y);
+                    break;
+                }
+            }
+        }
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                ChessPosition position = new ChessPosition(x+1, y+1);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> validMoves = piece.pieceMoves(board, position);
+                    for (ChessMove move : validMoves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
