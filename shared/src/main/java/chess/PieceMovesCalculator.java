@@ -30,22 +30,20 @@ class BishopMovesCalculator extends PieceMovesCalculator {
             while (true) {
                 curr_x += x[i];
                 curr_y += y[i];
-                System.out.println("check curr_pos: (" + curr_x + ", " + curr_y + ")");
 
                 if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    System.out.println("out of bounds!!! eeek: (" + curr_x + ", " + curr_y + ")");
                     break;
                 }
 
                 ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
                 ChessPiece piece_curr_pos = board.getPiece(curr_position);
                 if (piece_curr_pos == null) {
-                    System.out.println("empty yay!! valid: (" + curr_x + "," + curr_y + ")");
+
                     moves.add(new ChessMove(position, curr_position, null));
                 } else {
                     if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         moves.add(new ChessMove(position, curr_position, null));
-                        System.out.println("opponent there!!captured: (" + curr_x + "," + curr_y + ")");
+
                     }
                     break;
                 }
@@ -71,22 +69,18 @@ class KingMovesCalculator extends PieceMovesCalculator {
             int curr_y = position.getColumn() + y[i];
 
             while (true) {
-                System.out.println("check curr_pos: (" + curr_x + ", " + curr_y + ")");
 
                 if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    System.out.println("out of bounds!!! eeek: (" + curr_x + ", " + curr_y + ")");
                     break;
                 }
 
                 ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
                 ChessPiece piece_curr_pos = board.getPiece(curr_position);
                 if (piece_curr_pos == null) {
-                    System.out.println("empty yay!! valid: (" + curr_x + "," + curr_y + ")");
                     moves.add(new ChessMove(position, curr_position, null));
                 } else {
                     if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         moves.add(new ChessMove(position, curr_position, null));
-                        System.out.println("opponent there!!captured: (" + curr_x + "," + curr_y + ")");
                     }
                 }
                 break;
@@ -112,22 +106,18 @@ class KnightMovesCalculator extends PieceMovesCalculator {
             int curr_y = position.getColumn() + y[i];
 
             while (true) {
-                System.out.println("check curr_pos: (" + curr_x + ", " + curr_y + ")");
 
                 if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    System.out.println("out of bounds!!! eeek: (" + curr_x + ", " + curr_y + ")");
                     break;
                 }
 
                 ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
                 ChessPiece piece_curr_pos = board.getPiece(curr_position);
                 if (piece_curr_pos == null) {
-                    System.out.println("empty yay!! valid: (" + curr_x + "," + curr_y + ")");
                     moves.add(new ChessMove(position, curr_position, null));
                 } else {
                     if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         moves.add(new ChessMove(position, curr_position, null));
-                        System.out.println("opponent there!!captured: (" + curr_x + "," + curr_y + ")");
                     }
                 }
                 break;
@@ -248,22 +238,19 @@ class QueenMovesCalculator extends PieceMovesCalculator {
             while (true) {
                 curr_x += x[i];
                 curr_y += y[i];
-                System.out.println("check curr_pos: (" + curr_x + ", " + curr_y + ")");
+
 
                 if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    System.out.println("out of bounds!!! eeek: (" + curr_x + ", " + curr_y + ")");
                     break;
                 }
 
                 ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
                 ChessPiece piece_curr_pos = board.getPiece(curr_position);
                 if (piece_curr_pos == null) {
-                    System.out.println("empty yay!! valid: (" + curr_x + "," + curr_y + ")");
                     moves.add(new ChessMove(position, curr_position, null));
                 } else {
                     if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         moves.add(new ChessMove(position, curr_position, null));
-                        System.out.println("opponent there!!captured: (" + curr_x + "," + curr_y + ")");
                     }
                     break;
                 }
@@ -290,22 +277,18 @@ class RookMovesCalculator extends PieceMovesCalculator {
             while (true) {
                 curr_x += x[i];
                 curr_y += y[i];
-                System.out.println("check curr_pos: (" + curr_x + ", " + curr_y + ")");
 
                 if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    System.out.println("out of bounds!!! eeek: (" + curr_x + ", " + curr_y + ")");
                     break;
                 }
 
                 ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
                 ChessPiece piece_curr_pos = board.getPiece(curr_position);
                 if (piece_curr_pos == null) {
-                    System.out.println("empty yay!! valid: (" + curr_x + "," + curr_y + ")");
                     moves.add(new ChessMove(position, curr_position, null));
                 } else {
                     if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         moves.add(new ChessMove(position, curr_position, null));
-                        System.out.println("opponent there!!captured: (" + curr_x + "," + curr_y + ")");
                     }
                     break;
                 }

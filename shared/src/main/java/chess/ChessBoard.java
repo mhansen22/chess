@@ -112,4 +112,17 @@ public class ChessBoard {
         }
         return true;
     }
+
+    @Override
+    public ChessBoard clone() {
+        ChessBoard squaresClone = new ChessBoard();
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if (this.squares[x][y] != null) {
+                    squaresClone.squares[x][y] = new ChessPiece(this.squares[x][y].getTeamColor(), this.squares[x][y].getPieceType());
+                }
+            }
+        }
+        return squaresClone;
+    }
 }
