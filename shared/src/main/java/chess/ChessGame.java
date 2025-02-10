@@ -160,7 +160,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         } else {
-            return hasValidMoves(teamColor);
+            return noLegalMoves(teamColor);
         }
     }
 
@@ -175,7 +175,7 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         } else {
-            return hasValidMoves(teamColor);
+            return noLegalMoves(teamColor);
         }
     }
 
@@ -202,7 +202,7 @@ public class ChessGame {
      *
      * @return whether
      */
-    private boolean hasValidMoves(TeamColor teamColor) {
+    private boolean noLegalMoves(TeamColor teamColor) {
         ChessBoard board = getBoard();
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
