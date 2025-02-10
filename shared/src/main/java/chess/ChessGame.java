@@ -83,6 +83,7 @@ public class ChessGame {
         //for convenience to use simpler names:
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
+
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) {
             throw new InvalidMoveException("No piece at position!");
@@ -95,9 +96,9 @@ public class ChessGame {
             throw new InvalidMoveException("Not a valid move!");
         }
         board.addPiece(endPosition, piece);
-        board.addPiece(startPosition, null);//to remove
-
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && (endPosition.getRow() == 1 || endPosition.getRow()== 8)) {
+        board.addPiece(startPosition, null);//to remove, same as adding a remove func in ChessBoard
+        //for promotion pieces
+        if ((endPosition.getRow()==1 || endPosition.getRow()==8) && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (move.getPromotionPiece() != null ) {
                 ChessPiece promotion = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
                 board.addPiece(endPosition, promotion);
@@ -118,6 +119,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessBoard board = getBoard();
         //find teamColor king position
         ChessPosition kingPosition = null;
         for (int x = 0; x < 8; x++) {
@@ -129,9 +131,7 @@ public class ChessGame {
                     break;
                 }
             }
-            if (kingPosition != null) break;
         }
-        if (kingPosition == null) return false;
         //if one of the other teamColor's validMoves lands on the king, return that it is TRUE inCheck
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -198,7 +198,7 @@ public class ChessGame {
     }
 
     /**
-     * Gets the current chessboard
+     * Determines if there are validMoves
      *
      * @return whether
      */
@@ -208,10 +208,9 @@ public class ChessGame {
             for (int y = 0; y < 8; y++) {
                 ChessPosition position = new ChessPosition(x+1, y+1);
                 ChessPiece piece = board.getPiece(position);
-                Collection<ChessMove> moves;
                 if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> validMoves = piece.pieceMoves(board, position);
-                    for (ChessMove move : validMoves) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    for (ChessMove move : moves) {
                         ChessBoard boardCopy = board.clone();
                         ChessPiece movePiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
                         boardCopy.addPiece(move.getEndPosition(), movePiece);
@@ -228,23 +227,29 @@ public class ChessGame {
         return true;
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ChessGame that = (ChessGame) obj;
+        if ((teamColor == that.teamColor) && (Objects.equals(board, that.board))) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     @Override
     public String toString() {
-        return "ChessGame{" + "board=" + board + ", teamTurn=" + teamColor + '}';
+        return "board = " + board + ", teamColor/teamTurn = " + teamColor + '}';
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(board, teamColor);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        ChessGame that = (ChessGame) obj;
-        return Objects.equals(board, that.board) && teamColor == that.teamColor;
-    }
 }
-
-
