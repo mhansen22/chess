@@ -7,6 +7,31 @@ public abstract class PieceMovesCalculator {
 
     public abstract Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position);
     //edit, later, make this have code which the funcs inherit from, re-use more code
+    protected Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position, int[] x, int[] y) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        for (int i = 0; i < x.length; i++) {
+            int curr_x = position.getRow();
+            int curr_y = position.getColumn();
+            while (true) {
+                curr_x += x[i];
+                curr_y += y[i];
+                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
+                    break;
+                }
+                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
+                ChessPiece piece_curr_pos = board.getPiece(curr_position);
+                if (piece_curr_pos == null) {
+                    moves.add(new ChessMove(position, curr_position, null));
+                } else {
+                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                        moves.add(new ChessMove(position, curr_position, null));
+                    }
+                    break;
+                }
+            }
+        }
+        return moves;
+    }
 }
 
 class BishopMovesCalculator extends PieceMovesCalculator {
@@ -17,39 +42,10 @@ class BishopMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
         //create new ArrayList for valid moves, to be returned
-        Collection<ChessMove> moves = new ArrayList<>();
-
         //bishops can move diagonal ONLY
         int[] x = {-1, -1, 1, 1};
         int[] y = {1, -1, 1, -1};
-
-        for (int i = 0; i < x.length; i++) {
-            int curr_x = position.getRow();
-            int curr_y = position.getColumn();
-            //move diagonal until it hits the end of the board or hits another piece
-            while (true) {
-                curr_x += x[i];
-                curr_y += y[i];
-
-                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    break;
-                }
-
-                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
-                ChessPiece piece_curr_pos = board.getPiece(curr_position);
-                if (piece_curr_pos == null) {
-
-                    moves.add(new ChessMove(position, curr_position, null));
-                } else {
-                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                        moves.add(new ChessMove(position, curr_position, null));
-
-                    }
-                    break;
-                }
-            }
-        }
-        return moves;
+        return calcMoves(board, position, x, y);
     }
 }
 
@@ -213,6 +209,30 @@ class PawnMovesCalculator extends PieceMovesCalculator {
                 //both places in front MUST be empty
                 if (piece_next_pos == null && piece_next_next_pos == null) {
                     moves.add(new ChessMove(position, next_next_pos, null));
+                }
+            }
+        }
+        ChessMove prevMove = board.getPrevMove();  // Get the previous move from the board
+
+        if (prevMove != null) {
+            ChessPosition prevStart = prevMove.getStartPosition();
+            ChessPosition prevEnd = prevMove.getEndPosition();
+            ChessPiece prevPiece = board.getPiece(prevEnd);
+
+            int rowDiff = Math.abs(prevEnd.getRow() - prevStart.getRow());
+            if (rowDiff == 2 && prevPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                // Check if the previous move was a two-square pawn move
+                int colDiff = Math.abs(prevEnd.getColumn() - position.getColumn());
+                if (colDiff == 1 && prevEnd.getRow() == position.getRow()) {
+                    ChessPosition capturePosition = new ChessPosition(position.getRow() + direction, position.getColumn());
+                    ChessPiece capturedPiece = board.getPiece(capturePosition);
+
+                    if (capturedPiece != null && capturedPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                        // Check if the opponent's pawn is next to the current pawn (en passant condition)
+                        if (capturedPiece.getTeamColor() != piece_curr_pos.getTeamColor()) {
+                            moves.add(new ChessMove(position, capturePosition, null));  // En Passant move
+                        }
+                    }
                 }
             }
         }
