@@ -32,8 +32,31 @@ public abstract class PieceMovesCalculator {
         }
         return moves;
     }
-}
+    protected Collection<ChessMove> calcMoves2(ChessBoard board, ChessPosition position, int[] x, int[] y) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        for (int i = 0; i < x.length; i++) {
+            int curr_x = position.getRow() + x[i];
+            int curr_y = position.getColumn() + y[i];
+            while (true) {
 
+                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
+                    break;
+                }
+                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
+                ChessPiece piece_curr_pos = board.getPiece(curr_position);
+                if (piece_curr_pos == null) {
+                    moves.add(new ChessMove(position, curr_position, null));
+                } else {
+                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                        moves.add(new ChessMove(position, curr_position, null));
+                    }
+                }
+                break;
+            }
+        }
+        return moves;
+    }
+}
 class BishopMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
@@ -43,80 +66,44 @@ class BishopMovesCalculator extends PieceMovesCalculator {
         return calcMoves(board, position, x, y);
     }
 }
-
 class KingMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
-
-        //kings can move any direction, i think...im learning chess rules rn :)
         int[] x = {-1, -1, -1, 0, 1, 1, 1, 0};
         int[] y = {-1, 0, 1, 1, 1, 0, -1, -1};
-
-        //but can only more one space at a time, so add move FIRST!!!
-        for (int i = 0; i < x.length; i++) {
-            int curr_x = position.getRow() + x[i];
-            int curr_y = position.getColumn() + y[i];
-
-            while (true) {
-
-                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    break;
-                }
-
-                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
-                ChessPiece piece_curr_pos = board.getPiece(curr_position);
-                if (piece_curr_pos == null) {
-                    moves.add(new ChessMove(position, curr_position, null));
-                } else {
-                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                        moves.add(new ChessMove(position, curr_position, null));
-                    }
-                }
-                break;
-            }
-        }
-        return moves;
+        return calcMoves2(board, position, x, y);
     }
 }
-
 class KnightMovesCalculator extends PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
-
         //moves 2 one way 1 the other
         int[] x = {2, 2, 1, 1, -2, -2, -1, -1};
         int[] y = {1, -1, 2, -2, -1, 1, 2, -2};
-
-        //same as rest
-        for (int i = 0; i < x.length; i++) {
-            int curr_x = position.getRow() + x[i];
-            int curr_y = position.getColumn() + y[i];
-
-            while (true) {
-
-                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
-                    break;
-                }
-
-                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
-                ChessPiece piece_curr_pos = board.getPiece(curr_position);
-                if (piece_curr_pos == null) {
-                    moves.add(new ChessMove(position, curr_position, null));
-                } else {
-                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                        moves.add(new ChessMove(position, curr_position, null));
-                    }
-                }
-                break;
-            }
-        }
-        return moves;
+        return calcMoves2(board, position, x, y);
+    }
+}
+class QueenMovesCalculator extends PieceMovesCalculator {
+    @Override
+    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+        //queens can move diagonal + vertical/horizontal
+        //combine rook and bishop LOGIC yay
+        int[] x = {-1, 1, 0, 0, 1, -1, 1, -1};
+        int[] y = {0, 0, -1, 1, 1, 1, -1, -1};
+        return calcMoves(board, position, x, y);
     }
 }
 
+class RookMovesCalculator extends PieceMovesCalculator {
+    @Override
+    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+        //rooks move vertical and horizontal ONLY
+        int[] x = {-1, 1, 0, 0};
+        int[] y = {0, 0, -1, 1};
+        return calcMoves(board, position, x, y);
+    }
+}
 class PawnMovesCalculator extends PieceMovesCalculator {
 
     @Override
@@ -231,26 +218,5 @@ class PawnMovesCalculator extends PieceMovesCalculator {
             }
         }
         return moves;
-    }
-}
-
-class QueenMovesCalculator extends PieceMovesCalculator {
-    @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
-        //queens can move diagonal + vertical/horizontal
-        //combine rook and bishop LOGIC yay
-        int[] x = {-1, 1, 0, 0, 1, -1, 1, -1};
-        int[] y = {0, 0, -1, 1, 1, 1, -1, -1};
-        return calcMoves(board, position, x, y);
-    }
-}
-
-class RookMovesCalculator extends PieceMovesCalculator {
-    @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
-        //rooks move vertical and horizontal ONLY
-        int[] x = {-1, 1, 0, 0};
-        int[] y = {0, 0, -1, 1};
-        return calcMoves(board, position, x, y);
     }
 }
