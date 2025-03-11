@@ -52,7 +52,6 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceType pieceType = getPieceType();
-
         //check what each type is
         //probably a more efficient way than craeting new ones each time
         switch (pieceType) {
@@ -94,7 +93,6 @@ public class ChessPiece {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-
         //change here
         ChessPiece that = (ChessPiece) obj;
         return pieceColor == that.pieceColor && type == that.type;

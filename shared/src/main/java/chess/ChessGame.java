@@ -16,29 +16,25 @@ import static chess.ChessPiece.PieceType.KING;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamColor;
+    private ChessMove prevMove;
+
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.teamColor = TeamColor.WHITE;
         this.board.resetBoard();
+        this.prevMove = null;
     }
-
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn() {
-        return this.teamColor;
-    }
-
+    public TeamColor getTeamTurn() { return this.teamColor;}
     /**
      * Set's which teams turn it is
      *
      * @param team the team whose turn it is
      */
-    public void setTeamTurn(TeamColor team) {
-        this.teamColor = team;
-    }
-
+    public void setTeamTurn(TeamColor team) { this.teamColor = team; }
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -104,7 +100,11 @@ public class ChessGame {
                 board.addPiece(endPosition, promotion);
             }
         }
-        //to set the teamColor turn after other player's move:
+        prevMove = move;
+        nextTurn();
+    }
+
+    private void nextTurn() {
         if (getTeamTurn() == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
         } else {
@@ -227,7 +227,6 @@ public class ChessGame {
         return true;
     }
 
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -244,10 +243,12 @@ public class ChessGame {
             return false;
         }
     }
+
     @Override
     public String toString() {
         return "board = " + board + ", teamColor/teamTurn = " + teamColor + '}';
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(board, teamColor);

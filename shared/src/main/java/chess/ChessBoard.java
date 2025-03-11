@@ -8,7 +8,9 @@ package chess;
  */
 public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessMove prevMove;
     public ChessBoard() {
+        this.prevMove = null;
     }
 
     /**
@@ -62,6 +64,11 @@ public class ChessBoard {
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
     }
+
+    public ChessMove getPrevMove() {
+        return this.prevMove;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -82,6 +89,7 @@ public class ChessBoard {
         }
         return true;
     }
+
     @Override public int hashCode() {
         int result = 0;
         for (int x = 0; x < 8; x++) {

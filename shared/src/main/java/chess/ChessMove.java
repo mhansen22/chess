@@ -7,7 +7,6 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
-
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
@@ -18,7 +17,6 @@ public class ChessMove {
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
     }
-
     /**
      * @return ChessPosition of starting location
      */
@@ -52,7 +50,6 @@ public class ChessMove {
     public int hashCode() {
         int result = startPosition.hashCode();
         result = 31 * result + endPosition.hashCode();
-
         //need to add promotion piece if not null!!!!!
         if (promotionPiece != null) {
             result = 13 * result + promotionPiece.hashCode();
@@ -70,7 +67,6 @@ public class ChessMove {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-
         //change here
         ChessMove that = (ChessMove) obj;
         return (startPosition.equals(that.startPosition) && endPosition.equals(that.endPosition) && promotionPiece == that.promotionPiece);
