@@ -109,11 +109,9 @@ class PawnMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
-
         //for color and position
         ChessPiece pieceCurrPos = board.getPiece(position);
         ChessGame.TeamColor teamColor = pieceCurrPos.getTeamColor();
-
         //list for PieceType, this is for promotion pieces where the pawn flips at the end of the board!!
         //make list accessable in whole func
         ArrayList<ChessPiece.PieceType> promotionPieceTypes = new ArrayList<>();
@@ -158,7 +156,13 @@ class PawnMovesCalculator extends PieceMovesCalculator {
             ChessPosition diagPos = new ChessPosition(newX, newY);
             ChessPiece pieceDiagPos = board.getPiece(diagPos);
             if (pieceDiagPos == null || pieceDiagPos.getTeamColor() == teamColor) { continue; }
-            pawnCapture(moves, position, diagPos, newX, promotionPieceTypes);
+            pawnCapture(
+                    moves,
+                    position,
+                    diagPos,
+                    newX,
+                    promotionPieceTypes
+            );
             }
 
 
