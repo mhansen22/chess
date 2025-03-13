@@ -166,6 +166,7 @@ class PawnMovesCalculator extends PieceMovesCalculator {
             }
 
 
+
         //first pawn move!! (why is chess this wayy...)
         //in order to move two spots
         if ((white && position.getRow() == 2) || (!white && position.getRow() == 7)) {
