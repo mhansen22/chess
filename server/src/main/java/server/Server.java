@@ -37,7 +37,7 @@ public class Server {
         Spark.post("/clear", (req, res) -> {
             clearService.clear(); // Clears the database
             res.status(200);
-            return "Database cleared";
+            return "database cleared";
         });
 
         Spark.delete("/db", (req, res) -> {
