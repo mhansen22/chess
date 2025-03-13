@@ -191,7 +191,13 @@ class PawnMovesCalculator extends PieceMovesCalculator {
         return x >= 1 && x <= 8 && y >= 1 && y <= 8;
     }
     //helperfunc to reduce nesting for quality code check...
-    private void pawnCapture(Collection<ChessMove> moves, ChessPosition start, ChessPosition end, int newX, ArrayList<ChessPiece.PieceType> promotionPieceTypes) {
+    private void pawnCapture(
+            Collection<ChessMove> moves,
+            ChessPosition start,
+            ChessPosition end,
+            int newX,
+            ArrayList<ChessPiece.PieceType> promotionPieceTypes
+    ){
         if (newX == 8 || newX == 1) {
             for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
                 moves.add(new ChessMove(start, end, promotionType));
