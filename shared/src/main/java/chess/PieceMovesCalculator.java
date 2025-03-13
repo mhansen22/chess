@@ -153,21 +153,15 @@ class PawnMovesCalculator extends PieceMovesCalculator {
         for (int i = 0; i < diagonalX.length; i++) {
             int newY = position.getColumn() + diagonalY[i];
             int newX = position.getRow() + direction;
-            if (inBounds(newX, newY)) {
-                    ChessPosition diagPos = new ChessPosition(newX, newY);
-                    ChessPiece pieceDiagPos = board.getPiece(diagPos);
-                    if (pieceDiagPos != null && pieceDiagPos.getTeamColor() != teamColor) {
-                        //can also capture enemy and have promotion piece
-                        if (newX == 8 || newX == 1) {
-                            for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
-                                moves.add(new ChessMove(position, diagPos, promotionType));
-                            }
-                        } else {
-                            moves.add(new ChessMove(position, diagPos, null));
-                        }
-                    }
-                }
+
+            if (!inBounds(newX, newY)) { continue; }
+            ChessPosition diagPos = new ChessPosition(newX, newY);
+            ChessPiece pieceDiagPos = board.getPiece(diagPos);
+            if (pieceDiagPos == null || pieceDiagPos.getTeamColor() == teamColor) { continue; }
+            pawnCapture(moves, position, diagPos, newX, promotionPieceTypes);
             }
+
+
         //first pawn move!! (why is chess this wayy...)
         //in order to move two spots
         if ((white && position.getRow() == 2) || (!white && position.getRow() == 7)) {
@@ -190,5 +184,15 @@ class PawnMovesCalculator extends PieceMovesCalculator {
     //helperfunc to reduce code lines for quality code check!
     private boolean inBounds(int x, int y) {
         return x >= 1 && x <= 8 && y >= 1 && y <= 8;
+    }
+    //helperfunc to reduce nesting for quality code check...
+    private void pawnCapture(Collection<ChessMove> moves, ChessPosition start, ChessPosition end, int newX, ArrayList<ChessPiece.PieceType> promotionPieceTypes) {
+        if (newX == 8 || newX == 1) {
+            for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
+                moves.add(new ChessMove(start, end, promotionType));
+            }
+        } else {
+            moves.add(new ChessMove(start, end, null));
+        }
     }
 }
