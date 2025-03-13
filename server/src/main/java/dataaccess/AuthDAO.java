@@ -5,9 +5,10 @@ import model.AuthData;
 import java.util.Map;
 
 public class AuthDAO {
-    private static final Map<String, AuthData> authTokens = new HashMap<>();
+    private static final Map<String, AuthData> AUTH_TOKENS = new HashMap<>();
     //for use in UserService!!!
+    public static void clear() { AUTH_TOKENS.clear(); }
     public static Map<String, AuthData> getAuthTokens() {
-        return authTokens;
+        return AUTH_TOKENS;
     }
 }
