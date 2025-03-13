@@ -56,7 +56,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null) return null;
+        if (piece == null) { return null; }
         List<ChessMove> moves = new ArrayList<>(piece.pieceMoves(board, startPosition));
         List<ChessMove> correctMoves = new ArrayList<>();
         for (ChessMove move : moves) {
@@ -141,19 +141,20 @@ public class ChessGame {
             for (int y = 0; y < 8; y++) {
                 ChessPosition position = new ChessPosition(x+1, y+1);
                 ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true;
-                        }
-                    }
-                }
+                if (piece == null || piece.getTeamColor() == teamColor) { continue; }
+                if (attackKing(piece, position, kingPosition)) { return true; }
             }
         }
         return false;
     }
-
+    //helper func to reduce code nesting:
+    private boolean attackKing(ChessPiece piece, ChessPosition from, ChessPosition kingPosition) {
+        Collection<ChessMove> moves = piece.pieceMoves(board, from);
+        for (ChessMove move : moves) {
+            if (move.getEndPosition().equals(kingPosition)) { return true; }
+        }
+        return false;
+    }
     /**
      * Determines if the given team is in checkmate
      *
@@ -212,24 +213,27 @@ public class ChessGame {
             for (int y = 0; y < 8; y++) {
                 ChessPosition position = new ChessPosition(x+1, y+1);
                 ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                    for (ChessMove move : moves) {
-                        ChessBoard boardCopy = board.clone();
-                        ChessPiece movePiece = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
-                        boardCopy.addPiece(move.getEndPosition(), movePiece);
-                        boardCopy.addPiece(position, null);//remove piece
-                        ChessGame gameCopy = new ChessGame();
-                        gameCopy.setBoard(boardCopy);
-                        if (!gameCopy.isInCheck(teamColor)) {
-                            return false;
-                        }
-                    }
+                if (piece == null || piece.getTeamColor() != teamColor) {
+                    continue;
                 }
+                if (anySafeMoves(piece, position, teamColor)) { return false; }
             }
         }
         return true;
     }
+    //another helper func to reduce code nesting:
+    private boolean anySafeMoves(ChessPiece piece, ChessPosition position, ChessGame.TeamColor teamColor) {
+        for (ChessMove move : piece.pieceMoves(board, position)) {
+            ChessBoard boardCopy = board.clone();
+            boardCopy.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
+            boardCopy.addPiece(position, null);
+            ChessGame gameCopy = new ChessGame();
+            gameCopy.setBoard(boardCopy);
+            if (!gameCopy.isInCheck(teamColor)) { return true; }
+        }
+        return false;
+    }
+
 
     @Override
     public boolean equals(Object obj) {
