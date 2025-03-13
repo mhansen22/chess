@@ -28,13 +28,17 @@ public class ChessGame {
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn() { return this.teamColor;}
+    public TeamColor getTeamTurn() {
+        return this.teamColor;
+    }
     /**
      * Set's which teams turn it is
      *
      * @param team the team whose turn it is
      */
-    public void setTeamTurn(TeamColor team) { this.teamColor = team; }
+    public void setTeamTurn(TeamColor team) {
+        this.teamColor = team;
+    }
     /**
      * Enum identifying the 2 possible teams in a chess game
      */

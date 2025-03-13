@@ -10,21 +10,21 @@ public abstract class PieceMovesCalculator {
     protected Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position, int[] x, int[] y) {
         Collection<ChessMove> moves = new ArrayList<>();
         for (int i = 0; i < x.length; i++) {
-            int curr_x = position.getRow();
-            int curr_y = position.getColumn();
+            int currX = position.getRow();
+            int currY = position.getColumn();
             while (true) {
-                curr_x += x[i];
-                curr_y += y[i];
-                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
+                currX += x[i];
+                currY += y[i];
+                if (currX < 1 || currX > 8 || currY < 1 || currY > 8) {
                     break;
                 }
-                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
-                ChessPiece piece_curr_pos = board.getPiece(curr_position);
-                if (piece_curr_pos == null) {
-                    moves.add(new ChessMove(position, curr_position, null));
+                ChessPosition currPosition = new ChessPosition(currX, currY);
+                ChessPiece pieceCurrPos = board.getPiece(currPosition);
+                if (pieceCurrPos == null) {
+                    moves.add(new ChessMove(position, currPosition, null));
                 } else {
-                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                        moves.add(new ChessMove(position, curr_position, null));
+                    if (pieceCurrPos.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                        moves.add(new ChessMove(position, currPosition, null));
                     }
                     break;
                 }
@@ -35,20 +35,20 @@ public abstract class PieceMovesCalculator {
     protected Collection<ChessMove> calcMoves2(ChessBoard board, ChessPosition position, int[] x, int[] y) {
         Collection<ChessMove> moves = new ArrayList<>();
         for (int i = 0; i < x.length; i++) {
-            int curr_x = position.getRow() + x[i];
-            int curr_y = position.getColumn() + y[i];
+            int currX = position.getRow() + x[i];
+            int currY = position.getColumn() + y[i];
             while (true) {
 
-                if (curr_x < 1 || curr_x > 8 || curr_y < 1 || curr_y > 8) {
+                if (currX < 1 || currX > 8 || currY < 1 || currY > 8) {
                     break;
                 }
-                ChessPosition curr_position = new ChessPosition(curr_x, curr_y);
-                ChessPiece piece_curr_pos = board.getPiece(curr_position);
-                if (piece_curr_pos == null) {
-                    moves.add(new ChessMove(position, curr_position, null));
+                ChessPosition currPosition = new ChessPosition(currX, currY);
+                ChessPiece pieceCurrPos = board.getPiece(currPosition);
+                if (pieceCurrPos == null) {
+                    moves.add(new ChessMove(position, currPosition, null));
                 } else {
-                    if (piece_curr_pos.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                        moves.add(new ChessMove(position, curr_position, null));
+                    if (pieceCurrPos.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                        moves.add(new ChessMove(position, currPosition, null));
                     }
                 }
                 break;
@@ -111,112 +111,84 @@ class PawnMovesCalculator extends PieceMovesCalculator {
         Collection<ChessMove> moves = new ArrayList<>();
 
         //for color and position
-        ChessPiece piece_curr_pos = board.getPiece(position);
-        ChessGame.TeamColor teamColor = piece_curr_pos.getTeamColor();
+        ChessPiece pieceCurrPos = board.getPiece(position);
+        ChessGame.TeamColor teamColor = pieceCurrPos.getTeamColor();
 
         //list for PieceType, this is for promotion pieces where the pawn flips at the end of the board!!
         //make list accessable in whole func
-        ArrayList<ChessPiece.PieceType> promotion_piece_types = new ArrayList<>();
-        promotion_piece_types.add(ChessPiece.PieceType.ROOK);
-        promotion_piece_types.add(ChessPiece.PieceType.KNIGHT);
-        promotion_piece_types.add(ChessPiece.PieceType.BISHOP);
-        promotion_piece_types.add(ChessPiece.PieceType.QUEEN);
+        ArrayList<ChessPiece.PieceType> promotionPieceTypes = new ArrayList<>();
+        promotionPieceTypes.add(ChessPiece.PieceType.ROOK);
+        promotionPieceTypes.add(ChessPiece.PieceType.KNIGHT);
+        promotionPieceTypes.add(ChessPiece.PieceType.BISHOP);
+        promotionPieceTypes.add(ChessPiece.PieceType.QUEEN);
 
         //direction based on color
         int direction = 1;
         boolean white = (teamColor == ChessGame.TeamColor.WHITE);
-        if (white == true) {
-            direction = 1;
-        } else {
-            direction = -1;
-        }
+        if (white == true) { direction = 1; }
+        else { direction = -1; }
 
         //normal pawn one step move
-        int next_x = position.getRow() + direction;
+        int nextX = position.getRow() + direction;
 
         //check in bounds
-        if (next_x >=1 && next_x <= 8) {
-            ChessPosition next_position = new ChessPosition(next_x, position.getColumn());
-            ChessPiece piece_next_pos = board.getPiece(next_position);
-            if (piece_next_pos == null) {
+        if (nextX >=1 && nextX <= 8) {
+            ChessPosition nextPosition = new ChessPosition(nextX, position.getColumn());
+            ChessPiece pieceNextPos = board.getPiece(nextPosition);
+            if (pieceNextPos == null) {
                 // promotion piece --> if the next move is the top/bottom of board, then add promotion Type
-                if (next_x == 8 || next_x == 1) {
-                    for (ChessPiece.PieceType promotionType : promotion_piece_types) {
-                        moves.add(new ChessMove(position, next_position, promotionType));
+                if (nextX == 8 || nextX == 1) {
+                    for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
+                        moves.add(new ChessMove(position, nextPosition, promotionType));
                     }
                 } else {
-                    moves.add(new ChessMove(position, next_position, null));
+                    moves.add(new ChessMove(position, nextPosition, null));
                 }
             }
         }
 
         //ugh why do pawns have to be sooo confusing :/
-        int[] diagonal_y = {-1, 1};
-        int[] diagonal_x = {1, -1};
-
-        for (int i = 0; i < diagonal_x.length; i++) {
-            int new_y = position.getColumn() + diagonal_y[i];
-            if (new_y >= 1 && new_y <= 8) {
-                int new_x = position.getRow() + direction;
-                if (new_x >= 1 && new_x <= 8) {
-                    ChessPosition diag_pos = new ChessPosition(new_x, new_y);
-                    ChessPiece piece_diag_pos = board.getPiece(diag_pos);
-                    if (piece_diag_pos != null && piece_diag_pos.getTeamColor() != teamColor) {
+        int[] diagonalY = {-1, 1};
+        int[] diagonalX = {1, -1};
+        for (int i = 0; i < diagonalX.length; i++) {
+            int newY = position.getColumn() + diagonalY[i];
+            int newX = position.getRow() + direction;
+            if (inBounds(newX, newY)) {
+                    ChessPosition diagPos = new ChessPosition(newX, newY);
+                    ChessPiece pieceDiagPos = board.getPiece(diagPos);
+                    if (pieceDiagPos != null && pieceDiagPos.getTeamColor() != teamColor) {
                         //can also capture enemy and have promotion piece
-                        if (new_x == 8 || new_x == 1) {
-                            for (ChessPiece.PieceType promotionType : promotion_piece_types) {
-                                moves.add(new ChessMove(position, diag_pos, promotionType));
+                        if (newX == 8 || newX == 1) {
+                            for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
+                                moves.add(new ChessMove(position, diagPos, promotionType));
                             }
                         } else {
-                            moves.add(new ChessMove(position, diag_pos, null));
+                            moves.add(new ChessMove(position, diagPos, null));
                         }
                     }
                 }
             }
-        }
-
         //first pawn move!! (why is chess this wayy...)
         //in order to move two spots
         if ((white && position.getRow() == 2) || (!white && position.getRow() == 7)) {
-
             //still has to move in the correct direction
-            int next_next_x = position.getRow() + (2 * direction);
-            if (next_next_x >= 1 && next_next_x <= 8) {
-                ChessPosition next_position = new ChessPosition(next_x, position.getColumn());
-                ChessPiece piece_next_pos = board.getPiece(next_position);
-                ChessPosition next_next_pos = new ChessPosition(next_next_x, position.getColumn());
-                ChessPiece piece_next_next_pos = board.getPiece(next_next_pos);
+            int nextNextX = position.getRow() + (2 * direction);
+            if (nextNextX >= 1 && nextNextX <= 8) {
+                ChessPosition nextPosition = new ChessPosition(nextX, position.getColumn());
+                ChessPiece pieceNextPos = board.getPiece(nextPosition);
+                ChessPosition nextNextPos = new ChessPosition(nextNextX, position.getColumn());
+                ChessPiece pieceNextNextPos = board.getPiece(nextNextPos);
 
                 //both places in front MUST be empty
-                if (piece_next_pos == null && piece_next_next_pos == null) {
-                    moves.add(new ChessMove(position, next_next_pos, null));
-                }
-            }
-        }
-        ChessMove prevMove = board.getPrevMove();  // Get the previous move from the board
-
-        if (prevMove != null) {
-            ChessPosition prevStart = prevMove.getStartPosition();
-            ChessPosition prevEnd = prevMove.getEndPosition();
-            ChessPiece prevPiece = board.getPiece(prevEnd);
-
-            int rowDiff = Math.abs(prevEnd.getRow() - prevStart.getRow());
-            if (rowDiff == 2 && prevPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                // Check if the previous move was a two-square pawn move
-                int colDiff = Math.abs(prevEnd.getColumn() - position.getColumn());
-                if (colDiff == 1 && prevEnd.getRow() == position.getRow()) {
-                    ChessPosition capturePosition = new ChessPosition(position.getRow() + direction, position.getColumn());
-                    ChessPiece capturedPiece = board.getPiece(capturePosition);
-
-                    if (capturedPiece != null && capturedPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        // Check if the opponent's pawn is next to the current pawn (en passant condition)
-                        if (capturedPiece.getTeamColor() != piece_curr_pos.getTeamColor()) {
-                            moves.add(new ChessMove(position, capturePosition, null));  // En Passant move
-                        }
-                    }
+                if (pieceNextPos == null && pieceNextNextPos == null) {
+                    moves.add(new ChessMove(position, nextNextPos, null));
                 }
             }
         }
         return moves;
+    }
+    //helperfunc to reduce code lines for quality code check!
+    private boolean inBounds(int x, int y) {
+        return x >= 1 && x <= 8 && y >= 1 && y <= 8;
     }
 }
