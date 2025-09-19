@@ -19,15 +19,33 @@ public class ChessPosition {
      * @return which row this position is in
      * 1 codes for the bottom row
      */
-    public int getRow() {
-        return row;
-    }
+    public int getRow() { return row; }
 
     /**
      * @return which column this position is in
      * 1 codes for the left row
      */
-    public int getColumn() {
-        return col;
+    public int getColumn() { return col; }
+
+    @Override
+    public String toString() { return "(row: " + row + ", col: "+ col + ")"; }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ChessPosition comp)) {
+            return false;
+        }
+        return this.row == comp.row && this.col == comp.col;
     }
+
+//    @Override
+//    public int hashcode() {
+//        return 5 * col + row;
+//    }
 }
