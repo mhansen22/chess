@@ -44,8 +44,8 @@ public class ChessPosition {
         return this.row == comp.row && this.col == comp.col;
     }
 
-//    @Override
-//    public int hashcode() {
-//        return 5 * col + row;
-//    }
+    @Override
+    public int hashCode() {
+        return 31 * col + row;
+    }
 }
