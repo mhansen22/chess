@@ -47,6 +47,52 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        PieceType pieceType = getPieceType();
+        return switch (pieceType) {
+            case BISHOP -> {
+                PieceMovesCalculator calculator = new BishopMovesCalculator();
+                yield calculator.piecesMove(board, myPosition);
+            }
+            case KING -> {
+                PieceMovesCalculator calculator2 = new KingMovesCalculator();
+                yield calculator2.piecesMove(board, myPosition);
+            }
+            case KNIGHT -> {
+                PieceMovesCalculator calculator3 = new KnightMovesCalculator();
+                yield calculator3.piecesMove(board, myPosition);
+            }
+            case PAWN -> {
+                PieceMovesCalculator calculator4 = new PawnMovesCalculator();
+                yield calculator4.piecesMove(board, myPosition);
+            }
+            case QUEEN -> {
+                PieceMovesCalculator calculator5 = new QueenMovesCalculator();
+                yield calculator5.piecesMove(board, myPosition);
+            }
+            case ROOK -> {
+                PieceMovesCalculator calculator6 = new RookMovesCalculator();
+                yield calculator6.piecesMove(board, myPosition);
+            }
+        };
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ChessPiece comp)) {
+            return false;
+        }
+        return type == comp.type && pieceColor == comp.pieceColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * pieceColor.hashCode() + type.hashCode();
     }
 }
