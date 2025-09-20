@@ -7,23 +7,30 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
+    private final ChessPosition endPosition;
+    private final ChessPosition startPosition;
+    private final ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+
+        this.promotionPiece = promotionPiece;
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        throw new RuntimeException("Not implemented");
+        return startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        throw new RuntimeException("Not implemented");
+        return endPosition;
     }
 
     /**
@@ -33,6 +40,34 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotionPiece;
+    }
+
+    @Override
+    public String toString() {
+        return "startposition: " + startPosition + ", endposition: " + endPosition + ", promotionPiece: " + promotionPiece;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ChessMove comp)) {
+            return false;
+        }
+        return (promotionPiece == comp.promotionPiece && startPosition.equals(comp.startPosition) && endPosition.equals(comp.endPosition));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 13;
+        result = 31 * result + startPosition.hashCode();
+        result = 31 * result + endPosition.hashCode();
+        result = 31 * result + (promotionPiece == null ? 0 : promotionPiece.hashCode());
+        return result;
     }
 }
