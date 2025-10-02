@@ -51,27 +51,27 @@ public class ChessPiece {
         return switch (pieceType) {
             case BISHOP -> {
                 PieceMovesCalculator calculator = new BishopMovesCalculator();
-                yield calculator.piecesMove(board, myPosition);
+                yield calculator.calcMoves(board, myPosition);
             }
             case KING -> {
                 PieceMovesCalculator calculator2 = new KingMovesCalculator();
-                yield calculator2.piecesMove(board, myPosition);
+                yield calculator2.calcMoves(board, myPosition);
             }
             case KNIGHT -> {
                 PieceMovesCalculator calculator3 = new KnightMovesCalculator();
-                yield calculator3.piecesMove(board, myPosition);
+                yield calculator3.calcMoves(board, myPosition);
             }
             case PAWN -> {
                 PieceMovesCalculator calculator4 = new PawnMovesCalculator();
-                yield calculator4.piecesMove(board, myPosition);
+                yield calculator4.calcMoves(board, myPosition);
             }
             case QUEEN -> {
                 PieceMovesCalculator calculator5 = new QueenMovesCalculator();
-                yield calculator5.piecesMove(board, myPosition);
+                yield calculator5.calcMoves(board, myPosition);
             }
             case ROOK -> {
                 PieceMovesCalculator calculator6 = new RookMovesCalculator();
-                yield calculator6.piecesMove(board, myPosition);
+                yield calculator6.calcMoves(board, myPosition);
             }
         };
 

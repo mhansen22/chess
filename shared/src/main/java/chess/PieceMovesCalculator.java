@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public abstract class PieceMovesCalculator {
 
-    public abstract Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position);
+    public abstract Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position);
 
     protected Collection<ChessMove> slidingMoves(ChessBoard board, ChessPosition position, int[] row, int[] col) {
         Collection<ChessMove> moves = new ArrayList<>();
@@ -53,7 +53,7 @@ public abstract class PieceMovesCalculator {
 
 class KingMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         int[] row = { 1,0,-1, -1, 0, 1, -1, 1 };
         int[] col = {0, 1, 1, 0, -1, -1, -1, 1};
         return stepMoves(board, position, row, col);
@@ -62,7 +62,7 @@ class KingMovesCalculator extends PieceMovesCalculator {
 
 class KnightMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         int[] row = {-1,2,-2, 1,-1, 2, 1, -2};
         int[] col = { 2,-1,-1, 2,-2, 1, -2, 1};
         return stepMoves(board, position, row, col);
@@ -71,7 +71,7 @@ class KnightMovesCalculator extends PieceMovesCalculator {
 
 class BishopMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         int[] row = {1, 1, -1,-1};
         int[] col = {1, -1, -1, 1};
         return slidingMoves(board, position, row, col);
@@ -80,7 +80,7 @@ class BishopMovesCalculator extends PieceMovesCalculator {
 
 class RookMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         int[] row = {0, 0, 1, -1};
         int[] col = {1, -1, 0, 0};
         return slidingMoves(board, position, row, col);
@@ -89,7 +89,7 @@ class RookMovesCalculator extends PieceMovesCalculator {
 
 class QueenMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         int[] row = {1, -1, 1, -1, 0, 0, 1, -1};
         int[] col = {-1, 1, 1, -1, 1, -1, 0, 0};
         return slidingMoves(board, position, row, col);
@@ -98,7 +98,7 @@ class QueenMovesCalculator extends PieceMovesCalculator {
 
 class PawnMovesCalculator extends PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> piecesMove(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> calcMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessPiece pieceCurrPos = board.getPiece(position);
         ChessGame.TeamColor teamColor = pieceCurrPos.getTeamColor();
