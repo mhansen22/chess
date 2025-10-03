@@ -70,8 +70,8 @@ public class ChessBoard {
 
     public ChessBoard deepCopy() {
         ChessBoard boardCopy = new ChessBoard();
-        for (int row = 0; row <= 7; row++) {
-            for (int col = 0; col <=7; col++) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <=8; col++) {
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = this.getPiece(position);
                 if(piece != null) {
