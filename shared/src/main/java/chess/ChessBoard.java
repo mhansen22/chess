@@ -68,6 +68,20 @@ public class ChessBoard {
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
     }
 
+    public ChessBoard deepCopy() {
+        ChessBoard boardCopy = new ChessBoard();
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <=7; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = this.getPiece(position);
+                if(piece != null) {
+                    boardCopy.addPiece(position, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
+                }
+            }
+        }
+        return boardCopy;
+    }
+
     @Override
     public int hashCode() {
         int result = 1;
