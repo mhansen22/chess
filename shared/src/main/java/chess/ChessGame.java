@@ -14,6 +14,7 @@ import static chess.ChessPiece.PieceType.KING;
  */
 public class ChessGame {
     private ChessBoard board;
+    private ChessPosition enPassantPos = null;
     private TeamColor turn;
 
     public ChessGame() {
@@ -54,7 +55,6 @@ public class ChessGame {
         if (p == null) {
             return null;
         }
-
         List<ChessMove> legalMoves = new ArrayList<>();
         for (ChessMove m : p.pieceMoves(board, startPosition)) {
             ChessBoard boardCopy = board.deepCopy();
@@ -66,6 +66,37 @@ public class ChessGame {
 
             if (!copiedGame.isInCheck(p.getTeamColor())) {
                 legalMoves.add(m);
+            }
+        }
+
+        //for extra credit en passant, starting logic: for now ugh
+        if (p.getPieceType() ==ChessPiece.PieceType.PAWN && (enPassantPos != null)) {
+            int direction;
+            if (p.getTeamColor() == TeamColor.WHITE) {
+                direction = 1;
+            } else {
+                direction = -1;
+            }
+
+            if ((enPassantPos.getRow() == (startPosition.getRow() + direction)) && Math.abs(enPassantPos.getColumn() - startPosition.getColumn()) ==1) {
+                ChessPosition posNext = new ChessPosition(startPosition.getRow(), enPassantPos.getColumn());
+                ChessPiece sidePiece = board.getPiece(posNext);
+                //here change
+                if (!(sidePiece == null) && (sidePiece.getPieceType() == ChessPiece.PieceType.PAWN) && (sidePiece.getTeamColor() != p.getTeamColor())) {
+                    ChessBoard copiedBoard = board.deepCopy();
+                    copiedBoard.addPiece(startPosition, null);
+
+                    int rowC;
+                    if (p.getTeamColor() == TeamColor.WHITE) {
+                        rowC = enPassantPos.getRow() - 1;
+                    } else {
+                        rowC = enPassantPos.getRow() +1;
+                    }
+
+                    copiedBoard.addPiece(new ChessPosition(rowC, enPassantPos.getColumn()), null);
+                    copiedBoard.addPiece(enPassantPos, new ChessPiece(p.getTeamColor(), p.getPieceType()));
+
+                }
             }
         }
         return legalMoves;
