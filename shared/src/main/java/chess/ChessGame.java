@@ -117,7 +117,35 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessBoard board = getBoard();
+        ChessPosition kingPos = null;
 
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <= 7; col++) {
+                ChessPosition pos = new ChessPosition(row +1, col +1);
+                ChessPiece p = board.getPiece(pos);
+                if (p != null && (p.getPieceType() == KING && p.getTeamColor() == teamColor)) {
+                    kingPos = pos;
+                    break;
+                }
+            }
+        }
+        //opposite team, setting
+        TeamColor otherTeam = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        for (int row = 0; row <= 7; row++) {
+            for (int col = 0; col <= 7; col++) {
+                ChessPosition pos = new ChessPosition(row +1, col +1);
+                ChessPiece p = board.getPiece(pos);
+                if (p != null && p.getTeamColor() == otherTeam) {
+                    for (ChessMove move : p.pieceMoves(board, pos)) {
+                        if (move.getEndPosition().equals(kingPos)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -127,7 +155,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-
+        if (!isInCheck(teamColor)) {
+            return false;
+        } else {
+            return noCorrectMoves(teamColor);
+        }
     }
 
     /**
@@ -138,7 +170,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
+        if (isInCheck(teamColor)) {
+            return false;
+        } else {
+            return noCorrectMoves(teamColor);
+        }
     }
 
     //helper func to reduce lines of code, reused logic
