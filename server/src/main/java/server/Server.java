@@ -1,5 +1,4 @@
 package server;
-
 import io.javalin.*;
 import com.google.gson.Gson;
 import dataaccess.*;
@@ -12,7 +11,6 @@ public class Server {
     private final UserDAO users = new UserDAOMem();//DAOs:
     private final GameDAO games = new GameDAOMem();
     private final AuthDAO auths = new AuthDAOMem();
-
     private final ResetService resetService = new ResetService(users, auths, games);//services:
     private final GameService gameService = new GameService(games, auths);
     private final UserService userService = new UserService(users, auths);
@@ -64,9 +62,7 @@ public class Server {
         javalin.delete("/session", ctx -> {//logout:
             try {
                 String token = ctx.header("authorization");//need to get authtoken from the header i think
-                if (token ==null) {
-                    throw new DataAccessException("unauthorized");
-                }
+                if (token ==null) { throw new DataAccessException("unauthorized");}
                 userService.logout(token);
                 ctx.status(200).contentType("application/json").result("{}");
             } catch (DataAccessException e) {
@@ -116,14 +112,11 @@ public class Server {
                 ctx.status(200).contentType("application/json").result("{}");
             } catch (DataAccessException e) {
                 String message = e.getMessage();
-                if ("bad request".equals(message)) {
-                    ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}" );
-                } else if ("unauthorized".equals(message)) {
-                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
-                } else if ("already taken".equals(message)) {
-                    ctx.status(403).contentType("application/json").result("{\"message\":\"Error: already taken\"}");
-                } else {
-                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " +message + "\"}");
+                switch (message) {
+                    case "bad request" -> ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
+                    case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                    case "already taken" -> ctx.status(403).contentType("application/json").result("{\"message\":\"Error: already taken\"}");
+                    case null, default -> ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
             }
         });
