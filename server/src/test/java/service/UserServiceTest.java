@@ -33,7 +33,8 @@ public class UserServiceTest {
         //register:
         userService.register(new UserService.RegisterRequest("testingUser", "password", "email"));
         //register with same username but diff other stuff, MUST fail:
-        var fail = assertThrows(DataAccessException.class, () -> userService.register(new UserService.RegisterRequest("testingUser", "diffPassword", "diffEmail")));
+        var fail = assertThrows(DataAccessException.class,
+                () -> userService.register(new UserService.RegisterRequest("testingUser", "diffPassword", "diffEmail")));
         assertEquals("already taken", fail.getMessage());
     }
 
