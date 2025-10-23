@@ -32,15 +32,17 @@ public class Server {
                 ctx.status(200).contentType("application/json").result("{}");
             } catch (DataAccessException e) {
                 String message = e.getMessage();
+                //server failure!!!! important
                 ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
-            }//server failure!!!! important
+            }
         });
         //register a user:
         javalin.post("/user", ctx -> {
             try {
                 UserService.RegisterRequest req = serializer.fromJson(ctx.body(), UserService.RegisterRequest.class);
                 var result = userService.register(req);
-                ctx.status(200).contentType("application/json").result(serializer.toJson(result));//success
+                //success
+                ctx.status(200).contentType("application/json").result(serializer.toJson(result));
             } catch (DataAccessException e) {
                 String message = e.getMessage();
                 if (message.equals("bad request")) {

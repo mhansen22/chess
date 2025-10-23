@@ -78,11 +78,13 @@ public class ChessGame {
                 direction = -1;
             }
 
-            if ((enPassantPos.getRow() == (startPosition.getRow() + direction)) && Math.abs(enPassantPos.getColumn() - startPosition.getColumn()) ==1) {
+            if ((enPassantPos.getRow()==(startPosition.getRow() + direction)) &&
+                    Math.abs(enPassantPos.getColumn() - startPosition.getColumn())==1) {
                 ChessPosition posNext = new ChessPosition(startPosition.getRow(), enPassantPos.getColumn());
                 ChessPiece sidePiece = board.getPiece(posNext);
                 //here change
-                if (!(sidePiece == null) && (sidePiece.getPieceType() == ChessPiece.PieceType.PAWN) && (sidePiece.getTeamColor() != p.getTeamColor())) {
+                if (!(sidePiece == null) && (sidePiece.getPieceType() == ChessPiece.PieceType.PAWN) &&
+                        (sidePiece.getTeamColor() != p.getTeamColor())) {
                     ChessBoard copiedBoard = board.deepCopy();
                     copiedBoard.addPiece(startPosition, null);
 

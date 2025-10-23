@@ -39,7 +39,7 @@ public abstract class PieceMovesCalculator {
             int currRow = position.getRow() + row[i];
             int currCol = position.getColumn() + col[i];
 
-            if (currRow < 1 || currRow > 8 || currCol < 1 || currCol > 8) continue;
+            if (currRow < 1 || currRow > 8 || currCol < 1 || currCol > 8) { continue;}
             ChessPosition currPosition = new ChessPosition(currRow, currCol);
             ChessPiece pieceCurrPos = board.getPiece(currPosition);
             if (pieceCurrPos == null || pieceCurrPos.getTeamColor() != board.getPiece(position).getTeamColor()) {
@@ -133,9 +133,8 @@ class PawnMovesCalculator extends PieceMovesCalculator {
         for (int j : diagonal) {
             int newCol = position.getColumn()+ j;
             int newRow = position.getRow() + direction;
-
+            ChessPosition diagPos = new ChessPosition(newRow, newCol);
             if (newCol >= 1 && newCol <= 8 && newRow >= 1 && newRow <= 8) {
-                ChessPosition diagPos = new ChessPosition(newRow, newCol);
                 ChessPiece pieceDiagPos = board.getPiece(diagPos);
                 if (pieceDiagPos != null && pieceDiagPos.getTeamColor() !=teamColor) {
                     boolean promote = (newRow == 8 || newRow == 1);
