@@ -67,10 +67,9 @@ public class Server {
                 ctx.status(200).contentType("application/json").result("{}");
             } catch (DataAccessException e) {
                 String message = e.getMessage();
-                if (message.equals("unauthorized")) {
-                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
-                } else{
-                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                switch (message) {
+                    case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                    case null, default ->ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
             }
         });
@@ -81,10 +80,9 @@ public class Server {
                 ctx.status(200).contentType("application/json").result(serializer.toJson(result));
             } catch (DataAccessException e) {
                 String message = e.getMessage();
-                if ("unauthorized".equals(message)) {
-                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}" );
-                } else {
-                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                switch (message) {
+                    case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}" );
+                    case null, default ->ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
             }
         });
@@ -95,12 +93,10 @@ public class Server {
                 ctx.status(200).contentType("application/json").result(serializer.toJson(gameService.createGame(token, req)));
             } catch (DataAccessException e) {
                 String message = e.getMessage();
-                if ("bad request".equals(message)) {
-                    ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
-                } else if ("unauthorized".equals(message)) {
-                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
-                } else {
-                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                switch (message) {
+                    case "bad request" -> ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
+                    case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                    case null, default -> ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
             }
         });

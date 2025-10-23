@@ -169,11 +169,11 @@ public class ChessGame {
             for (int col = 0; col <= 7; col++) {
                 ChessPosition pos = new ChessPosition(row +1, col +1);
                 ChessPiece p = board.getPiece(pos);
-                if (p != null && p.getTeamColor() == otherTeam) {
-                    for (ChessMove move : p.pieceMoves(board, pos)) {
-                        if (move.getEndPosition().equals(kingPos)) {
-                            return true;
-                        }
+                boolean otherTeamPiece = (p != null && p.getTeamColor() == otherTeam);//one line to remove nested if, code quality check
+                var moves = otherTeamPiece ? p.pieceMoves(board, pos) : new ArrayList<ChessMove>();
+                for (ChessMove move : moves) {
+                    if (move.getEndPosition().equals(kingPos)) {
+                        return true;
                     }
                 }
             }
@@ -218,18 +218,18 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(row+1, col+1 );
                 ChessPiece p = board.getPiece(pos);
 
-                if (p != null && p.getTeamColor() ==teamColor) {
-                    for (ChessMove m : p.pieceMoves(board, pos)) {
-                        ChessBoard copyBoard = board.deepCopy();
-                        ChessPiece movePiece = new ChessPiece(p.getTeamColor(), p.getPieceType());
-                        copyBoard.addPiece(pos, null);//remove piece here
-                        copyBoard.addPiece(m.getEndPosition(), movePiece);
+                boolean myTeamPiece = (p != null && p.getTeamColor() ==teamColor);//removed if for nesting, code quality check
+                var moves = myTeamPiece ? p.pieceMoves(board, pos) : new ArrayList<ChessMove>();
+                for (ChessMove move : moves) {
+                    ChessBoard copyBoard = board.deepCopy();
+                    ChessPiece movePiece = new ChessPiece(p.getTeamColor(), p.getPieceType());
+                    copyBoard.addPiece(pos, null);//remove piece here
+                    copyBoard.addPiece(move.getEndPosition(), movePiece);
 
-                        ChessGame gameCopy = new ChessGame();
-                        gameCopy.setBoard(copyBoard);
-                        if (!gameCopy.isInCheck(teamColor)) {
-                            return false;
-                        }
+                    ChessGame gameCopy = new ChessGame();
+                    gameCopy.setBoard(copyBoard);
+                    if (!gameCopy.isInCheck(teamColor)) {
+                        return false;
                     }
                 }
             }

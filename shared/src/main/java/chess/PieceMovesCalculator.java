@@ -133,18 +133,17 @@ class PawnMovesCalculator extends PieceMovesCalculator {
         for (int j : diagonal) {
             int newCol = position.getColumn()+ j;
             int newRow = position.getRow() + direction;
+            boolean inBounds = (newCol >= 1 && newCol <= 8 && newRow >= 1 && newRow <= 8);
             ChessPosition diagPos = new ChessPosition(newRow, newCol);
-            if (newCol >= 1 && newCol <= 8 && newRow >= 1 && newRow <= 8) {
-                ChessPiece pieceDiagPos = board.getPiece(diagPos);
-                if (pieceDiagPos != null && pieceDiagPos.getTeamColor() !=teamColor) {
-                    boolean promote = (newRow == 8 || newRow == 1);
-                    if (promote) {
-                        for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
-                            moves.add(new ChessMove(position, diagPos, promotionType));
-                        }
-                    } else {
-                        moves.add(new ChessMove(position, diagPos, null));
+            ChessPiece pieceDiagPos = inBounds ? board.getPiece(diagPos) : null;//removes if statement for code quality check
+            if (pieceDiagPos != null && pieceDiagPos.getTeamColor() !=teamColor) {
+                boolean promote = (newRow == 8 || newRow == 1);
+                if (promote) {
+                    for (ChessPiece.PieceType promotionType : promotionPieceTypes) {
+                        moves.add(new ChessMove(position, diagPos, promotionType));
                     }
+                } else {
+                    moves.add(new ChessMove(position, diagPos, null));
                 }
             }
         }
