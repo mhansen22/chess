@@ -28,7 +28,8 @@ public class GameServiceTest {
     }
     @Test
     void createGameNegative() {
-        var fail = assertThrows(DataAccessException.class, () -> gameService.createGame("failToken", new GameService.CreateGameRequest("failGame.io")));
+        var fail = assertThrows(DataAccessException.class,
+                () -> gameService.createGame("failToken", new GameService.CreateGameRequest("failGame.io")));
         assertEquals("unauthorized", fail.getMessage());
     }
 
