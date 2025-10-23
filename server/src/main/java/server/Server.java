@@ -6,43 +6,34 @@ import dataaccess.*;
 import service.*;
 
 public class Server {
-
     private final Javalin javalin;
-
     private final Gson serializer = new Gson();
-    //DAOs:
-    private final UserDAO users = new UserDAOMem();
+
+    private final UserDAO users = new UserDAOMem();//DAOs:
     private final GameDAO games = new GameDAOMem();
     private final AuthDAO auths = new AuthDAOMem();
-    //services:
-    private final ResetService resetService = new ResetService(users, auths, games);
+
+    private final ResetService resetService = new ResetService(users, auths, games);//services:
     private final GameService gameService = new GameService(games, auths);
     private final UserService userService = new UserService(users, auths);
 
     public Server() {
-
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-
-        //first, to clear everything:
-        javalin.delete("/db", ctx -> {
+        javalin.delete("/db", ctx -> {//first, to clear everything:
             try {
                 resetService.clear();
                 ctx.status(200).contentType("application/json").result("{}");
             } catch (DataAccessException e) {
                 String message = e.getMessage();
-                //server failure!!!! important
                 ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
-            }
+            }//server failure!!!! important
         });
-        //register a user:
-        javalin.post("/user", ctx -> {
+        javalin.post("/user", ctx -> {//register a user:
             try {
                 UserService.RegisterRequest req = serializer.fromJson(ctx.body(), UserService.RegisterRequest.class);
                 var result = userService.register(req);
-                //success
-                ctx.status(200).contentType("application/json").result(serializer.toJson(result));
+                ctx.status(200).contentType("application/json").result(serializer.toJson(result));//success
             } catch (DataAccessException e) {
                 String message = e.getMessage();
                 if (message.equals("bad request")) {
@@ -54,8 +45,7 @@ public class Server {
                 }
             }
         });
-        //login:
-        javalin.post("/session", ctx -> {
+        javalin.post("/session", ctx -> { //login:
             try {
                 UserService.LoginRequest req = serializer.fromJson(ctx.body(), UserService.LoginRequest.class);
                 var result = userService.login(req);
@@ -71,8 +61,7 @@ public class Server {
                 }
             }
         });
-        //logout:
-        javalin.delete("/session", ctx -> {
+        javalin.delete("/session", ctx -> {//logout:
             try {
                 String token = ctx.header("authorization");//need to get authtoken from the header i think
                 if (token ==null) {
@@ -89,8 +78,7 @@ public class Server {
                 }
             }
         });
-        //list games:
-        javalin.get("/game", ctx -> {
+        javalin.get("/game", ctx -> {//list games:
             try {
                 String token = ctx.header("authorization");
                 var result = gameService.listGames(token);
@@ -104,8 +92,7 @@ public class Server {
                 }
             }
         });
-        //create a game:
-        javalin.post("/game", ctx -> {
+        javalin.post("/game", ctx -> {//create a game:
             try {
                 String token = ctx.header("authorization");
                 GameService.CreateGameRequest req = serializer.fromJson(ctx.body(), GameService.CreateGameRequest.class);
@@ -121,8 +108,7 @@ public class Server {
                 }
             }
         });
-        //join game:
-        javalin.put("/game", ctx -> {
+        javalin.put("/game", ctx -> {//join game:
             try {
                 String token = ctx.header("authorization");
                 GameService.JoinGameRequest req = serializer.fromJson(ctx.body(), GameService.JoinGameRequest.class);
@@ -142,12 +128,10 @@ public class Server {
             }
         });
     }
-
     public int run(int desiredPort) {
         javalin.start(desiredPort);
         return javalin.port();
     }
-
     public void stop() {
         javalin.stop();
     }

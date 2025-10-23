@@ -33,15 +33,16 @@ public class UserService {
     public record LoginResult(String username, String authToken) {}
 
     public LoginResult login(LoginRequest req) throws DataAccessException {
-        if (req == null || req.username() == null || req.password() ==null)
+        if (req == null || req.username() == null || req.password() ==null) {
             throw new DataAccessException("bad request");
-
+        }
         var user = users.getUser(req.username());
         if (user == null) {
             throw new DataAccessException("unauthorized");
         }
-        if (!user.password().equals(req.password()))
+        if (!user.password().equals(req.password())) {
             throw new DataAccessException("unauthorized");
+        }
         //make new token
         String token = UUID.randomUUID().toString();
         auths.createAuth(new AuthData(token, req.username()));
@@ -52,8 +53,9 @@ public class UserService {
     public void logout(String authToken) throws DataAccessException {
         //i think just remove it??
         var auth = auths.getAuth(authToken);
-        if (auth == null)
+        if (auth == null) {
             throw new DataAccessException("unauthorized");
+        }
         auths.deleteAuth(authToken);
     }
 }
