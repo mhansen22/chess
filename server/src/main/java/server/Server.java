@@ -79,8 +79,8 @@ public class Server {
             } catch (DataAccessException e) {
                 String message = e.getMessage();
                 switch (message) {
-                    case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}" );
-                    case null, default ->ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                    case "unauthorized" ->ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                    case null, default -> ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
             }
         });
@@ -92,7 +92,7 @@ public class Server {
             } catch (DataAccessException e) {
                 String message = e.getMessage();
                 switch (message) {
-                    case "bad request" -> ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
+                    case "bad request" ->ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
                     case "unauthorized" -> ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
                     case null, default -> ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
                 }
