@@ -87,6 +87,58 @@ public class Server {
                 }
             }
         });
+        //list games:
+        javalin.get("/game", ctx -> {
+            try {
+                String token = ctx.header("authorization");
+                var result = gameService.listGames(token);
+                ctx.status(200).contentType("application/json").result(serializer.toJson(result));
+            } catch (DataAccessException e) {
+                String message = e.getMessage();
+                if ("unauthorized".equals(message)) {
+                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}" );
+                } else {
+                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                }
+            }
+        });
+        //create a game:
+        javalin.post("/game", ctx -> {
+            try {
+                String token = ctx.header("authorization");
+                GameService.CreateGameRequest req = serializer.fromJson(ctx.body(), GameService.CreateGameRequest.class);
+                ctx.status(200).contentType("application/json").result(serializer.toJson(gameService.createGame(token, req)));
+            } catch (DataAccessException e) {
+                String message = e.getMessage();
+                if ("bad request".equals(message)) {
+                    ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}");
+                } else if ("unauthorized".equals(message)) {
+                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                } else {
+                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " + message + "\"}");
+                }
+            }
+        });
+        //join game:
+        javalin.put("/game", ctx -> {
+            try {
+                String token = ctx.header("authorization");
+                GameService.JoinGameRequest req = serializer.fromJson(ctx.body(), GameService.JoinGameRequest.class);
+                gameService.joinGame(token, req);
+                ctx.status(200).contentType("application/json").result("{}");
+            } catch (DataAccessException e) {
+                String message = e.getMessage();
+                if ("bad request".equals(message)) {
+                    ctx.status(400).contentType("application/json").result("{\"message\":\"Error: bad request\"}" );
+                } else if ("unauthorized".equals(message)) {
+                    ctx.status(401).contentType("application/json").result("{\"message\":\"Error: unauthorized\"}");
+                } else if ("already taken".equals(message)) {
+                    ctx.status(403).contentType("application/json").result("{\"message\":\"Error: already taken\"}");
+                } else {
+                    ctx.status(500).contentType("application/json").result("{\"message\":\"Error: " +message + "\"}");
+                }
+            }
+        });
     }
 
     public int run(int desiredPort) {
