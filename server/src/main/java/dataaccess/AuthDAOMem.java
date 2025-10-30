@@ -13,6 +13,9 @@ public class AuthDAOMem implements AuthDAO {
         if (auth == null || auth.username() == null || auth.authToken() == null) {//check to make sure not null
             throw new DataAccessException("bad request");
         }
+        if (authMap.containsKey(auth.authToken())) {
+            throw new DataAccessException("auth token already exists");
+        }
         authMap.put(auth.authToken(),auth);
     }
 
