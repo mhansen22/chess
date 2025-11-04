@@ -2,6 +2,7 @@ package service;
 import dataaccess.*;
 import model.*;
 import java.util.UUID;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
     private AuthDAO auths;
@@ -40,7 +41,8 @@ public class UserService {
         if (user == null) {
             throw new DataAccessException("unauthorized");
         }
-        if (!user.password().equals(req.password())) {
+        boolean ok = BCrypt.checkpw(req.password(), user.password());
+        if (!ok) {
             throw new DataAccessException("unauthorized");
         }
         //make new token

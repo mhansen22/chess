@@ -1,6 +1,6 @@
 package dataaccess;
-
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +21,9 @@ public class UserDAOMem implements UserDAO {
             throw new DataAccessException("already taken");
         }
         //then add into Map
-        userMap.put(data.username(), data);
+        //hashed
+        String hashedPassword = BCrypt.hashpw(data.password(), BCrypt.gensalt());
+        userMap.put(data.username(), new UserData(data.username(), hashedPassword, data.email()));
     }
     //return username from userMap
     @Override
