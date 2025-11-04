@@ -8,18 +8,31 @@ public class Server {
     private final Javalin javalin;
     private final Gson serializer = new Gson();
     //DAOs:
-    private final UserDAO users = new UserDAOMem();
-    private final GameDAO games = new GameDAOMem();
-    private final AuthDAO auths = new AuthDAOMem();
+    private final UserDAO users;
+    private final GameDAO games;
+    private final AuthDAO auths;
     //services:
-    private final ResetService resetService = new ResetService(users, auths, games);
-    private final GameService gameService = new GameService(games, auths);
-    private final UserService userService = new UserService(users, auths);
+    private final ResetService resetService;
+    private final GameService gameService;
+    private final UserService userService;
 
     public Server() {
+        try {
+            DatabaseManager.createDatabase();
+            this.users = new UserDAOmySQL();
+            this.games = new GamesDAOmySQL();
+            this.auths = new AuthDAOmySQL();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("not able to initialize the DAOs", e);
+        }
+        this.resetService = new ResetService(users, auths, games);
+        this.gameService = new GameService(games, auths);
+        this.userService = new UserService(users, auths);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        javalin.delete("/db", ctx -> {//first, to clear everything:
+        //first, to clear everything:
+        javalin.delete("/db", ctx -> {
             try {
                 resetService.clear();
                 ctx.status(200).contentType("application/json").result("{}");
