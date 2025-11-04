@@ -28,7 +28,7 @@ public class UserDAOmySQL implements UserDAO {
         }
         //hash password here before entered into the database -->
         String hashedPassword = BCrypt.hashpw(data.password(), BCrypt.gensalt());
-        String statement = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO users (username, hashedPassword, email) VALUES (?, ?, ?)";
 
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -50,14 +50,14 @@ public class UserDAOmySQL implements UserDAO {
         if (username ==null) {
             return null;
         }
-        String statement = "SELECT username, password_hash, email FROM users WHERE username = ?";
+        String statement = "SELECT username, hashedPassword, email FROM users WHERE username = ?";
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 try (var resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         var userName = resultSet.getString("username");
-                        var hashedPassword = resultSet.getString("password_hash");
+                        var hashedPassword = resultSet.getString("hashedPassword");
                         var email = resultSet.getString("email");
                         return new UserData(userName, hashedPassword, email);
                     }
@@ -72,11 +72,11 @@ public class UserDAOmySQL implements UserDAO {
     private final String createStatement =
             """
             CREATE TABLE IF NOT EXISTS users (
-                username VARCHAR(50) PRIMARY KEY,
-                password_hash VARCHAR(100) NOT NULL,
-                email VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB;
+                `username` varchar(50),
+                `hashedPassword` varchar(100) NOT NULL,
+                `email` varchar(255), 
+                PRIMARY KEY (`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """;
 
     private void configureTable() throws DataAccessException {

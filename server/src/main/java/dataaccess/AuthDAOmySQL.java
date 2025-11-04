@@ -12,7 +12,7 @@ public class AuthDAOmySQL implements AuthDAO {
     @Override
     public void clear() throws DataAccessException {
         try (var connection = DatabaseManager.getConnection()) {
-            String statement = "DELETE FROM auth_tokens";
+            String statement = "DELETE FROM authTokens";
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
@@ -26,7 +26,7 @@ public class AuthDAOmySQL implements AuthDAO {
         if ((auth == null) || (auth.authToken() == null) || (auth.username() == null)) {
             throw new DataAccessException("cannot be null");
         }
-        String statement = "INSERT INTO auth_tokens (token, username) VALUES (?, ?)";
+        String statement = "INSERT INTO authTokens (token, username) VALUES (?, ?)";
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, auth.authToken());
@@ -43,7 +43,7 @@ public class AuthDAOmySQL implements AuthDAO {
         if (token == null) {
             return null;
         }
-        String statement = "SELECT token, username FROM auth_tokens WHERE token = ?";
+        String statement = "SELECT token, username FROM authTokens WHERE token = ?";
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, token);
@@ -64,7 +64,7 @@ public class AuthDAOmySQL implements AuthDAO {
         if (token ==null) {
             return;
         }
-        String statement = "DELETE FROM auth_tokens WHERE token = ?";
+        String statement = "DELETE FROM authTokens WHERE token = ?";
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, token);
@@ -78,19 +78,19 @@ public class AuthDAOmySQL implements AuthDAO {
     private final String[] createStatements = {
     """
     CREATE TABLE IF NOT EXISTS users (
-      username VARCHAR(50) PRIMARY KEY,
-      password_hash VARCHAR(100) NOT NULL,
-      email VARCHAR(255),
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB
+      `username` varchar(50),
+      `hashedPassword` varchar(100) NOT NULL,
+      `email` varchar(255), 
+      PRIMARY KEY (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
     """,
     """
-    CREATE TABLE IF NOT EXISTS auth_tokens (
-      token CHAR(36) PRIMARY KEY,
-      username VARCHAR(50) NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      INDEX (username)
-    ) ENGINE=InnoDB
+    CREATE TABLE IF NOT EXISTS authTokens (
+      `token` char(36),
+      `username` varchar(50) NOT NULL,
+      PRIMARY KEY (`token`),
+      INDEX (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
     """
     };
     //similar to petshop example too,

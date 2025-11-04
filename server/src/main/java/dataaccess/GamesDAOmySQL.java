@@ -35,7 +35,7 @@ public class GamesDAOmySQL implements GameDAO {
         }
         ChessGame startGame = new ChessGame();
         String json = gson.toJson(startGame);
-        String statement = "INSERT INTO games (game_name, white_username, black_username, game_json) VALUES (?, NULL, NULL, ?)";
+        String statement = "INSERT INTO games (gameName, whiteUser, blackUser, json) VALUES (?, NULL, NULL, ?)";
         try (var connection = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, gameName);
@@ -59,15 +59,15 @@ public class GamesDAOmySQL implements GameDAO {
     public Collection<Game> listGames() throws DataAccessException {
         var games = new ArrayList<Game>();
         try (var connection = DatabaseManager.getConnection()) {
-            String statement = "SELECT game_id, game_name, white_username, black_username, game_json FROM games";
+            String statement = "SELECT gameId, gameName, whiteUser, blackUser, json FROM games";
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
-                        int gameId = resultSet.getInt("game_id");
-                        String gameName = resultSet.getString("game_name");
-                        String whiteUser = resultSet.getString("white_username");
-                        String blackUser = resultSet.getString("black_username");
-                        String json = resultSet.getString("game_json");
+                        int gameId = resultSet.getInt("gameId");
+                        String gameName = resultSet.getString("gameName");
+                        String whiteUser = resultSet.getString("whiteUser");
+                        String blackUser = resultSet.getString("blackUser");
+                        String json = resultSet.getString("json");
 
                         ChessGame chessGame = gson.fromJson(json, ChessGame.class);
                         games.add(new Game(gameId, whiteUser, blackUser, gameName, chessGame));
@@ -83,16 +83,16 @@ public class GamesDAOmySQL implements GameDAO {
     @Override
     public Game getGame(int gameID) throws DataAccessException {
         try (var connection = DatabaseManager.getConnection()) {
-            String statement = "SELECT game_id, game_name, white_username, black_username, game_json FROM games WHERE game_id = ?";
+            String statement = "SELECT gameId, gameName, whiteUser, blackUser, json FROM games WHERE gameId = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setInt(1, gameID);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        int gameId = resultSet.getInt("game_id");
-                        String gameName = resultSet.getString("game_name");
-                        String whiteUser = resultSet.getString("white_username");
-                        String blackUser = resultSet.getString("black_username");
-                        String json = resultSet.getString("game_json");
+                        int gameId = resultSet.getInt("gameId");
+                        String gameName = resultSet.getString("gameName");
+                        String whiteUser = resultSet.getString("whiteUser");
+                        String blackUser = resultSet.getString("blackUser");
+                        String json = resultSet.getString("json");
 
                         ChessGame chessGame = gson.fromJson(json, ChessGame.class);
                         return new Game(gameId, whiteUser, blackUser, gameName, chessGame);
@@ -111,7 +111,7 @@ public class GamesDAOmySQL implements GameDAO {
             throw new DataAccessException("game not found");
         }
         String json = gson.toJson(game.game());
-        String statement = "UPDATE games SET game_name=?, white_username=?, black_username=?, game_json=? WHERE game_id=?";
+        String statement = "UPDATE games SET gameName=?, whiteUser=?, blackUser=?, json=? WHERE gameId=?";
         try (var connection = DatabaseManager.getConnection()) {
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 //gameName
@@ -146,13 +146,13 @@ public class GamesDAOmySQL implements GameDAO {
     private final String createStatement =
             """
             CREATE TABLE IF NOT EXISTS games (
-                game_id INT NOT NULL AUTO_INCREMENT,
-                game_name VARCHAR(256) NOT NULL,
-                white_username VARCHAR(64),
-                black_username VARCHAR(64),
-                game_json LONGTEXT NOT NULL,
-                PRIMARY KEY (game_id)
-            ) ENGINE=InnoDB;
+                `gameId` int NOT NULL AUTO_INCREMENT,
+                `gameName` varchar(256) NOT NULL,
+                `whiteUser` varchar(64),
+                `blackUser` varchar(64),
+                `json` longtext NOT NULL,
+                PRIMARY KEY (`gameId`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """;
 
     private void configureTable() throws DataAccessException {
