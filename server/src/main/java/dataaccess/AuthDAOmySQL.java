@@ -11,9 +11,11 @@ public class AuthDAOmySQL implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement("DELETE FROM auth_tokens")) {
-            ps.executeUpdate();
+        try (var connection = DatabaseManager.getConnection()) {
+            String statement = "DELETE FROM auth_tokens";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new DataAccessException("could not clear auth", e);
         }
@@ -21,15 +23,16 @@ public class AuthDAOmySQL implements AuthDAO {
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
-        if (auth == null || auth.authToken() == null || auth.username() == null) {
+        if ((auth == null) || (auth.authToken() == null) || (auth.username() == null)) {
             throw new DataAccessException("cannot be null");
         }
-        String insert = "INSERT INTO auth_tokens (token, username) VALUES (?, ?)";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(insert)) {
-            ps.setString(1, auth.authToken());
-            ps.setString(2, auth.username());
-            ps.executeUpdate();
+        String statement = "INSERT INTO auth_tokens (token, username) VALUES (?, ?)";
+        try (var connection = DatabaseManager.getConnection()) {
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, auth.authToken());
+                preparedStatement.setString(2, auth.username());
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new DataAccessException("could not create an auth", e);
         }
@@ -40,13 +43,14 @@ public class AuthDAOmySQL implements AuthDAO {
         if (token == null) {
             return null;
         }
-        String select = "SELECT token, username FROM auth_tokens WHERE token = ?";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(select)) {
-            ps.setString(1, token);
-            try (var rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new AuthData(rs.getString("token"), rs.getString("username"));
+        String statement = "SELECT token, username FROM auth_tokens WHERE token = ?";
+        try (var connection = DatabaseManager.getConnection()) {
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, token);
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return new AuthData(resultSet.getString("token"), resultSet.getString("username"));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -60,11 +64,12 @@ public class AuthDAOmySQL implements AuthDAO {
         if (token ==null) {
             return;
         }
-        String delete = "DELETE FROM auth_tokens WHERE token = ?";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(delete)) {
-            ps.setString(1, token);
-            ps.executeUpdate();
+        String statement = "DELETE FROM auth_tokens WHERE token = ?";
+        try (var connection = DatabaseManager.getConnection()) {
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, token);
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new DataAccessException("could not delete auth token", e);
         }
@@ -88,13 +93,13 @@ public class AuthDAOmySQL implements AuthDAO {
     ) ENGINE=InnoDB
     """
     };
-    //similar to petshop example too,,
+    //similar to petshop example too,
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
-                try (var ps = conn.prepareStatement(statement)) {
-                    ps.executeUpdate();
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
                 }
             }
         } catch (SQLException ex) {
