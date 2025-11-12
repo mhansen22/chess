@@ -9,6 +9,9 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Collection;
+import model.Game;
+import chess.ChessGame;
 
 public class ServerFacade {
 
@@ -45,6 +48,19 @@ public class ServerFacade {
         handleResponse(response, Void.class);
         authToken = null;
     }
+
+    public int createGame(String gameName) throws ClientException {
+        throw new ClientException("not implemented yet");
+    }
+
+    public Collection<Game> listGames() throws ClientException {
+        throw new ClientException("not implemented yet");
+    }
+
+    public void joinGame(Integer gameId, ChessGame.TeamColor color) throws ClientException {
+        throw new ClientException("not implemented yet");
+    }
+
     //helpers from petShop example, quick change
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
