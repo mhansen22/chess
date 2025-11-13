@@ -50,15 +50,29 @@ public class ServerFacade {
     }
 
     public int createGame(String gameName) throws ClientException {
-        throw new ClientException("not implemented yet");
+        var request = buildRequest("POST", "/game", new CreateGameRequest(gameName));
+        var response = sendRequest(request);
+        var out = handleResponse(response, CreateGameResponse.class);
+        return out.gameId();
     }
 
     public Collection<Game> listGames() throws ClientException {
-        throw new ClientException("not implemented yet");
+        var request = buildRequest("GET", "/game", null);
+        var response = sendRequest(request);
+        var gamesListRes = handleResponse(response, ListGamesResponse.class);
+        var result = new java.util.ArrayList<Game>();
+        if (gamesListRes.games() != null){
+            for (var game : gamesListRes.games()) {
+                result.add(new Game(game.gameId(), game.whiteUser(), game.blackUser(), game.gameName(), new ChessGame()));
+            }
+        }
+        return result;
     }
 
     public void joinGame(Integer gameId, ChessGame.TeamColor color) throws ClientException {
-        throw new ClientException("not implemented yet");
+        var request = buildRequest("PUT", "/game", new JoinGameRequest(color, gameId));
+        var response = sendRequest(request);
+        handleResponse(response, Void.class);
     }
 
     //helpers from petShop example, quick change
@@ -117,4 +131,9 @@ public class ServerFacade {
     private record RegisterRequest(String username, String password, String email) {}
     private record LoginRequest(String username, String password) {}
     private static class ErrorResponse { public String message; }
+    private record CreateGameRequest(String gameName) {}
+    private record JoinGameRequest(ChessGame.TeamColor playerColor, Integer gameId) {}
+    private record CreateGameResponse(int gameId) {}
+    private record GameListInfo(int gameId, String whiteUser, String blackUser, String gameName) {}
+    private record ListGamesResponse(Collection<GameListInfo> games) {}
 }
