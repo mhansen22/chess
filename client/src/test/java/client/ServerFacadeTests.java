@@ -38,5 +38,14 @@ public class ServerFacadeTests {
         assertEquals(username, auth.username());
         assertNotNull(auth.authToken());
     }
-
+    @Test
+    public void registerNegative() throws Exception {
+        var auth = facade.register("marmieSame", "password1", "marmie1@byu.edu");
+        assertNotNull(auth);
+        //trying again w/ same username
+        var exception = assertThrows(Exception.class, () -> {
+            facade.register("marmieSame", "password2", "marmie2@byu.edu");
+        });
+        assertNotNull(exception.getMessage());
+    }
 }
