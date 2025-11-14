@@ -53,7 +53,7 @@ public class ServerFacade {
         var request = buildRequest("POST", "/game", new CreateGameRequest(gameName));
         var response = sendRequest(request);
         var out = handleResponse(response, CreateGameResponse.class);
-        return out.gameId();
+        return out.gameID();
     }
 
     public Collection<Game> listGames() throws ClientException {
@@ -63,14 +63,14 @@ public class ServerFacade {
         var result = new java.util.ArrayList<Game>();
         if (gamesListRes.games() != null){
             for (var game : gamesListRes.games()) {
-                result.add(new Game(game.gameId(), game.whiteUser(), game.blackUser(), game.gameName(), new ChessGame()));
+                result.add(new Game(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), new ChessGame()));
             }
         }
         return result;
     }
 
-    public void joinGame(Integer gameId, ChessGame.TeamColor color) throws ClientException {
-        var request = buildRequest("PUT", "/game", new JoinGameRequest(color, gameId));
+    public void joinGame(Integer gameID, ChessGame.TeamColor color) throws ClientException {
+        var request = buildRequest("PUT", "/game", new JoinGameRequest(color, gameID));
         var response = sendRequest(request);
         handleResponse(response, Void.class);
     }
@@ -118,22 +118,29 @@ public class ServerFacade {
             }
             throw new ClientException(status, "HTTP " + status);
         }
-        if (responseClass !=null) {
-            return gson.fromJson(response.body(), responseClass);
+        if ((responseClass == null) ||(responseClass == Void.class)){
+            return null;
         }
-        return null;
+        return gson.fromJson(response.body(), responseClass);
     }
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
+    }
+
+    public void clear() throws ClientException {
+        var request = buildRequest("DELETE", "/db", null);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+        authToken = null;
     }
     //DTOs
     private record RegisterRequest(String username, String password, String email) {}
     private record LoginRequest(String username, String password) {}
     private static class ErrorResponse { public String message; }
     private record CreateGameRequest(String gameName) {}
-    private record JoinGameRequest(ChessGame.TeamColor playerColor, Integer gameId) {}
-    private record CreateGameResponse(int gameId) {}
-    private record GameListInfo(int gameId, String whiteUser, String blackUser, String gameName) {}
+    private record JoinGameRequest(ChessGame.TeamColor playerColor, Integer gameID) {}
+    private record CreateGameResponse(int gameID) {}
+    private record GameListInfo(int gameID, String whiteUsername, String blackUsername, String gameName) {}
     private record ListGamesResponse(Collection<GameListInfo> games) {}
 }
