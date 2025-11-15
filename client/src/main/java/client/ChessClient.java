@@ -217,6 +217,44 @@ public class ChessClient {
         System.out.print(RESET_BG_COLOR+RESET_TEXT_COLOR +"\n");
     }
 
+    private void createWhiteBoard(ChessBoard board) {
+        System.out.println("    a  b  c  d  e  f  g  h");//top, letters
+        for (int row = 8; row >= 1; row--) {
+            System.out.print(" " + row + " ");//nums, left
+            for (int col = 1; col <= 8; col++) {
+                String square_color;
+                if (((row+col) % 2) == 0){
+                    square_color = SET_BG_COLOR_LIGHT_GREY;
+                } else {
+                    square_color = SET_BG_COLOR_DARK_GREY;
+                }
+                ChessPiece piece = board.getPiece(new ChessPosition(row,col));
+                System.out.print(square_color +getIcon(piece));
+            }
+            System.out.print(RESET_BG_COLOR + " " + row +"\n");
+        }
+        System.out.println("    a  b  c  d  e  f  g  h");//bottom
+    }
+    private void createBlackBoard(ChessBoard board) {
+        System.out.println("    a  b  c  d  e  f  g  h") ;
+        for (int row = 1; row <= 8; row++) {
+            System.out.print(" " + (9-row) + " ");
+            for (int col = 1;col <= 8; col++) {
+                int col2 = (9-col);
+                String square_color;
+                if ((row+col2) % 2 == 0){
+                    square_color = SET_BG_COLOR_LIGHT_GREY;
+                } else {
+                    square_color = SET_BG_COLOR_DARK_GREY;
+                }
+                ChessPiece piece= board.getPiece(new ChessPosition(row,col2));
+                System.out.print(square_color +getIcon(piece));
+            }
+            System.out.print(RESET_BG_COLOR + " " + (9-row) +"\n");
+        }
+        System.out.println("    a  b  c  d  e  f  g  h");
+    }
+
     //Postlogin UI
     private String signedInHelp() {
         return """
