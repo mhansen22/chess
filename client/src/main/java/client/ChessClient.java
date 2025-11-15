@@ -145,6 +145,37 @@ public class ChessClient {
         }
         return gameText.toString();
     }
+    private String join(String... params) throws ClientException {
+        assertSignedIn();
+        int i;
+        if (prevGameList.isEmpty()) {
+            throw new ClientException("enter: list first to see the gameID");
+        }
+        if (params.length<2){
+            throw new ClientException("correct format: join <GAMEID> [WHITE|BLACK]");
+        }
+        try {
+            i = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new ClientException("gameID must be a real number!");
+        }
+        Game game = prevGameList.get(i);
+        if (game==null) {
+            throw new ClientException("not a real gameID...p.s. use command list to see available games ;)");
+        }
+        String color_text = params[1].toLowerCase();
+        ChessGame.TeamColor color;
+        if (color_text.equals("white")) {
+            color =ChessGame.TeamColor.WHITE;
+        } else if (color_text.equals("black")) {
+            color = ChessGame.TeamColor.BLACK;
+        } else {
+            throw new ClientException("color can only be white or black!");
+        }
+        server.joinGame(game.gameId(), color);
+        createBoard(color);
+        return "successfully joined " + game.gameName() + " as " + color;
+    }
 
     //Postlogin UI
     private String signedInHelp() {
