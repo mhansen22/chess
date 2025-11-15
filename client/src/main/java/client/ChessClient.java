@@ -107,6 +107,44 @@ public class ChessClient {
         this.prevGameList.clear();
         return "successfully logged out!";
     }
+    private String create(String... params) throws ClientException {
+        assertSignedIn();
+        if (params.length>=1) {
+            String gameName = String.join(" ",params);
+            server.createGame(gameName);
+            return "successfully created game "+ gameName;
+        }
+        throw new ClientException("expected: create <GAMENAME>");
+    }
+
+    private String list() throws ClientException {
+        assertSignedIn();
+        var gameList =server.listGames();
+        prevGameList.clear();
+        if (gameList.isEmpty()) {
+            return "no games found!";
+        }
+        StringBuilder gameText = new StringBuilder("games -->\n");
+        int gameNumber = 1;
+        for (Game game : gameList) {
+            prevGameList.put(gameNumber, game);
+            String white;
+            String black;
+            if (game.whiteUser()==null) {
+                white = "(empty)";
+            } else {
+                white = game.whiteUser();
+            }
+            if (game.blackUser()==null) {
+                black = "(empty)";
+            } else {
+                black = game.blackUser();
+            }
+            gameText.append(gameNumber).append(". ").append(game.gameName()).append("  WHITE: ").append(white).append("  BLACK: ").append(black).append("\n");
+            gameNumber++;
+        }
+        return gameText.toString();
+    }
 
     //Postlogin UI
     private String signedInHelp() {
