@@ -237,9 +237,9 @@ public class ChessClient {
         System.out.println("    a  b  c  d  e  f  g  h");//bottom
     }
     private void createBlackBoard(ChessBoard board) {
-        System.out.println("    a  b  c  d  e  f  g  h") ;
+        System.out.println("    h  g  f  e  d  c  b  a");
         for (int row = 1; row <= 8; row++) {
-            System.out.print(" " + (9-row) + " ");
+            System.out.print(" " +row+ " ");
             for (int col = 1;col <= 8; col++) {
                 int col2 = (9-col);
                 String squareColor;
@@ -251,9 +251,9 @@ public class ChessClient {
                 ChessPiece piece= board.getPiece(new ChessPosition(row,col2));
                 System.out.print(squareColor +getIcon(piece));
             }
-            System.out.print(RESET_BG_COLOR + " " + (9-row) +"\n");
+            System.out.print(RESET_BG_COLOR + " " + row+"\n");
         }
-        System.out.println("    a  b  c  d  e  f  g  h");
+        System.out.println("    h  g  f  e  d  c  b  a");
     }
 
     //Postlogin UI
