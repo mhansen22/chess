@@ -140,7 +140,8 @@ public class ChessClient {
             } else {
                 black = game.blackUser();
             }
-            gameText.append(gameNumber).append(". ").append(game.gameName()).append("  WHITE: ").append(white).append("  BLACK: ").append(black).append("\n");
+            gameText.append(gameNumber).append(". ").append(game.gameName()).append("  WHITE: ")
+                    .append(white).append("  BLACK: ").append(black).append("\n");
             gameNumber++;
         }
         return gameText.toString();
@@ -163,11 +164,11 @@ public class ChessClient {
         if (game==null) {
             throw new ClientException("not a real gameID...p.s. use command list to see available games ;)");
         }
-        String color_text = params[1].toLowerCase();
+        String colorText = params[1].toLowerCase();
         ChessGame.TeamColor color;
-        if (color_text.equals("white")) {
+        if (colorText.equals("white")) {
             color =ChessGame.TeamColor.WHITE;
-        } else if (color_text.equals("black")) {
+        } else if (colorText.equals("black")) {
             color = ChessGame.TeamColor.BLACK;
         } else {
             throw new ClientException("color can only be white or black!");
@@ -222,14 +223,14 @@ public class ChessClient {
         for (int row = 8; row >= 1; row--) {
             System.out.print(" " + row + " ");//nums, left
             for (int col = 1; col <= 8; col++) {
-                String square_color;
+                String squareColor;
                 if (((row+col) % 2) == 0){
-                    square_color = SET_BG_COLOR_LIGHT_GREY;
+                    squareColor = SET_BG_COLOR_LIGHT_GREY;
                 } else {
-                    square_color = SET_BG_COLOR_DARK_GREY;
+                    squareColor = SET_BG_COLOR_DARK_GREY;
                 }
                 ChessPiece piece = board.getPiece(new ChessPosition(row,col));
-                System.out.print(square_color +getIcon(piece));
+                System.out.print(squareColor +getIcon(piece));
             }
             System.out.print(RESET_BG_COLOR + " " + row +"\n");
         }
@@ -241,14 +242,14 @@ public class ChessClient {
             System.out.print(" " + (9-row) + " ");
             for (int col = 1;col <= 8; col++) {
                 int col2 = (9-col);
-                String square_color;
+                String squareColor;
                 if ((row+col2) % 2 == 0){
-                    square_color = SET_BG_COLOR_LIGHT_GREY;
+                    squareColor = SET_BG_COLOR_LIGHT_GREY;
                 } else {
-                    square_color = SET_BG_COLOR_DARK_GREY;
+                    squareColor = SET_BG_COLOR_DARK_GREY;
                 }
                 ChessPiece piece= board.getPiece(new ChessPosition(row,col2));
-                System.out.print(square_color +getIcon(piece));
+                System.out.print(squareColor +getIcon(piece));
             }
             System.out.print(RESET_BG_COLOR + " " + (9-row) +"\n");
         }
@@ -281,14 +282,14 @@ public class ChessClient {
         if (piece==null) {
             return EMPTY;
         }
-        boolean is_white = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
+        boolean whiteBool = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
         return switch (piece.getPieceType()) {
-            case KING -> is_white ? WHITE_KING : BLACK_KING;
-            case QUEEN -> is_white ? WHITE_QUEEN : BLACK_QUEEN;
-            case BISHOP -> is_white ? WHITE_BISHOP : BLACK_BISHOP;
-            case KNIGHT -> is_white ? WHITE_KNIGHT : BLACK_KNIGHT;
-            case ROOK -> is_white ? WHITE_ROOK : BLACK_ROOK;
-            case PAWN -> is_white ? WHITE_PAWN : BLACK_PAWN;
+            case KING -> whiteBool ? WHITE_KING : BLACK_KING;
+            case QUEEN -> whiteBool ? WHITE_QUEEN : BLACK_QUEEN;
+            case BISHOP -> whiteBool ? WHITE_BISHOP : BLACK_BISHOP;
+            case KNIGHT -> whiteBool ? WHITE_KNIGHT : BLACK_KNIGHT;
+            case ROOK -> whiteBool ? WHITE_ROOK : BLACK_ROOK;
+            case PAWN -> whiteBool ? WHITE_PAWN : BLACK_PAWN;
             default -> EMPTY;
         };
     }
