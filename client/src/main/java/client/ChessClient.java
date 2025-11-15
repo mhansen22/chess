@@ -177,6 +177,28 @@ public class ChessClient {
         return "successfully joined " + game.gameName() + " as " + color;
     }
 
+    private String observe(String... params) throws ClientException {
+        assertSignedIn();
+        int i;
+        if (prevGameList.isEmpty()) {
+            throw new ClientException("enter: list first to see the gameID");
+        }
+        if (params.length <1) {
+            throw new ClientException("correct format: observe <GAMEID>");
+        }
+        try {
+            i = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            throw new ClientException("gameID needs to be a real number!");
+        }
+        Game game = prevGameList.get(i);
+        if (game==null) {
+            throw new ClientException("not a real gameID...p.s. use command list to see available games ;)");
+        }
+        createBoard(ChessGame.TeamColor.WHITE);
+        return "successfully observing "+ game.gameName();
+    }
+
     //Postlogin UI
     private String signedInHelp() {
         return """
