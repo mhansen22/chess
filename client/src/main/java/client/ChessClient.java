@@ -199,6 +199,24 @@ public class ChessClient {
         return "successfully observing "+ game.gameName();
     }
 
+    private void assertSignedIn() throws ClientException {
+        if (state == State.SIGNEDOUT){
+            throw new ClientException("you need to sign in first!!");
+        }
+    }
+
+    private void createBoard(ChessGame.TeamColor color) {
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        System.out.print(ERASE_SCREEN);
+        if (color==ChessGame.TeamColor.WHITE) {
+            createWhiteBoard(board);
+        } else {
+            createBlackBoard(board);
+        }
+        System.out.print(RESET_BG_COLOR+RESET_TEXT_COLOR +"\n");
+    }
+
     //Postlogin UI
     private String signedInHelp() {
         return """
