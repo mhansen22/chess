@@ -34,7 +34,7 @@ public class ChessClient {
                 }
                 System.out.println(result);
             } catch (ClientException e) {
-                System.out.println("Error: " +e.getMessage());
+                System.out.println(e.getMessage());
             } catch (Throwable e) {
                 System.out.println("oops something went wrong...try again");
             }
@@ -112,6 +112,7 @@ public class ChessClient {
         if (params.length>=1) {
             String gameName = String.join(" ",params);
             server.createGame(gameName);
+            prevGameList.clear();
             return "successfully created game "+ gameName;
         }
         throw new ClientException("expected: create <GAMENAME>");
@@ -150,7 +151,8 @@ public class ChessClient {
         assertSignedIn();
         int i;
         if (prevGameList.isEmpty()) {
-            throw new ClientException("enter: list first to see the gameID");
+//            throw new ClientException("enter: list first to see the gameID");
+            list();
         }
         if (params.length<2){
             throw new ClientException("correct format: join <GAMEID> [WHITE|BLACK]");
@@ -182,7 +184,8 @@ public class ChessClient {
         assertSignedIn();
         int i;
         if (prevGameList.isEmpty()) {
-            throw new ClientException("enter: list first to see the gameID");
+//            throw new ClientException("enter: list first to see the gameID");
+            list();
         }
         if (params.length <1) {
             throw new ClientException("correct format: observe <GAMEID>");
@@ -225,9 +228,9 @@ public class ChessClient {
             for (int col = 1; col <= 8; col++) {
                 String squareColor;
                 if (((row+col) % 2) == 0){
-                    squareColor = SET_BG_COLOR_LIGHT_GREY;
-                } else {
                     squareColor = SET_BG_COLOR_DARK_GREY;
+                } else {
+                    squareColor = SET_BG_COLOR_LIGHT_GREY;
                 }
                 ChessPiece piece = board.getPiece(new ChessPosition(row,col));
                 System.out.print(squareColor +getIcon(piece));
@@ -244,9 +247,9 @@ public class ChessClient {
                 int col2 = (9-col);
                 String squareColor;
                 if ((row+col2) % 2 == 0){
-                    squareColor = SET_BG_COLOR_LIGHT_GREY;
-                } else {
                     squareColor = SET_BG_COLOR_DARK_GREY;
+                } else {
+                    squareColor = SET_BG_COLOR_LIGHT_GREY;
                 }
                 ChessPiece piece= board.getPiece(new ChessPosition(row,col2));
                 System.out.print(squareColor +getIcon(piece));
