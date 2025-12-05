@@ -3,6 +3,7 @@ package client.websocket;
 import com.google.gson.Gson;
 import client.ClientException;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -50,5 +51,23 @@ public class WebSocketFacade extends Endpoint {
     //from petshop example!!
     @Override
     public void onOpen(Session session, EndpointConfig config) {
+    }
+
+    public void send(UserGameCommand command) throws ClientException {
+        try {
+            String json = gson.toJson(command);
+            session.getBasicRemote().sendText(json);
+        } catch (IOException ex) {
+            throw new ClientException("trouble sending websocket command! " + ex.getMessage());
+        }
+    }
+
+    public void close() {
+        try {
+            if ((session != null) &&(session.isOpen())) {
+                session.close();
+            }
+        } catch (IOException ignored) {
+        }
     }
 }
