@@ -22,8 +22,10 @@ public class WebSocketFacade extends Endpoint {
 
     public WebSocketFacade(String url, ServerMessageHandler handler) throws ClientException {
         try {
-            url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            //url, clean it
+            String clean = url.replaceFirst("^https?://", "").replaceFirst("^wss?://", "").replaceFirst("^ws://", "");
+            clean = clean.replaceAll("/.*$", "");
+            URI socketURI = new URI("ws://" + clean + "/ws");
 
             this.handler = handler;
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();

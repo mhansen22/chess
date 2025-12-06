@@ -3,6 +3,7 @@ import io.javalin.*;
 import com.google.gson.Gson;
 import dataaccess.*;
 import service.*;
+import server.websocket.WebSocketHandler;
 
 public class Server {
     private final Javalin javalin;
@@ -108,6 +109,13 @@ public class Server {
                 ErrorResponse err = errorHelper(e.getMessage());
                 ctx.status(err.status()).contentType("application/json").result(err.body());//for code quality check, shortned w helper func
             }
+        });
+        var wsHandler = new WebSocketHandler(auths, games);
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(wsHandler);
+            ws.onMessage(wsHandler);
+            ws.onClose(wsHandler);
         });
     }
     //helper func to reduce code lines and duplicate code
