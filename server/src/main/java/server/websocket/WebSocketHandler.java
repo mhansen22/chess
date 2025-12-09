@@ -191,7 +191,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new DataAccessException("observers can't resign ");
             }
             if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) )||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) ||
-                    (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))|| gamesRes.contains(gameID)){
+                    (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))||
+                    gamesRes.contains(gameID)){
                 throw new DataAccessException("game already over");
             }
             gamesRes.add(gameID);
