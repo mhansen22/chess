@@ -12,6 +12,7 @@ import static ui.EscapeSequences.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
+import chess.ChessMove;
 
 public class ChessClient implements ServerMessageHandler {
     private String currentUser = null;
@@ -385,6 +386,70 @@ public class ChessClient implements ServerMessageHandler {
         this.state = State.GAMEPLAY;
     }
 
+    private String leaveGame() throws ClientException {
+        if (wsF != null) {
+            UserGameCommand leaveC = new UserGameCommand(UserGameCommand.CommandType.LEAVE,authToken,currGameId);
+            wsF.send(leaveC);
+            wsF.close();
+        }
+        wsF = null;
+        currGame= null;
+        currGameId = null;
+        color= null;
+        state= State.SIGNEDIN;
+        return "left game";
+    }
+
+    private String resign() throws ClientException {
+        if (wsF==null) {
+            return "no active game";
+        }
+        System.out.print("are you sure you want to resign?(type: y or n)");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.nextLine().trim().toLowerCase();
+        if ((!answer.equals("y"))&&(!answer.equals("yes"))){
+            return "did not resign";
+        }
+        UserGameCommand resignC = new UserGameCommand(UserGameCommand.CommandType.RESIGN,authToken, currGameId);
+        wsF.send(resignC);
+        return "you sent a resign request";
+    }
+
+    private String makeMove(String... params) throws ClientException {
+        if (params.length<2) {
+            throw new ClientException("correct format: move <source> <destination>");
+        }
+        if (currGame==null) {
+            throw new ClientException("no active game");
+        }
+        String fromSquare = params[0];
+        String toSquare = params[1];
+        ChessPosition startPos = convertSquare(fromSquare);
+        ChessPosition endPos = convertSquare(toSquare);
+        ChessMove move = new ChessMove(startPos, endPos,null);
+
+        UserGameCommand moveC = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,currGameId,move);
+        wsF.send(moveC);
+        posToHighlight = null;
+        highlightOptions.clear();
+        return "move requested: " +fromSquare+ " to " +toSquare;
+    }
+
+    //helper func::
+    private ChessPosition convertSquare(String square) throws ClientException {
+        //needs to be 2!!!!
+        if (square.length() != 2) {
+            throw new ClientException("position needs to look like e2");
+        }
+        char colLetter = square.charAt(0);
+        char rowNumber = square.charAt(1);
+        int col = ((colLetter -'a')+1);//letter to col#
+        int row = (rowNumber -'0');//number char to num
+        if ((col < 1) ||(col > 8)|| (row > 8)||(row < 1 )) {
+            throw new ClientException("position is out of range " + square);
+        }
+        return new ChessPosition(row, col);
+    }
     @Override
     public void handle(ServerMessage message) {
         ServerMessage.ServerMessageType messageType= message.getServerMessageType();
