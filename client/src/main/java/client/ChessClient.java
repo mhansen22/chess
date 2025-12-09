@@ -435,6 +435,30 @@ public class ChessClient implements ServerMessageHandler {
         return "move requested: " +fromSquare+ " to " +toSquare;
     }
 
+    private String highlight(String... params) throws ClientException {
+        if (params.length<1) {
+            throw new ClientException("correct format: highlight <position> ");
+        }
+        if (currGame==null) {
+            throw new ClientException("no active game");
+        }
+        String spot = params[0].toLowerCase().trim();
+        ChessPosition fromSquare = convertSquare(spot);
+        Collection<ChessMove> moves = currGame.validMoves(fromSquare);
+        if ((moves==null) || (moves.isEmpty())){
+            posToHighlight = null;
+            highlightOptions.clear();
+            redrawBoard();
+            return "no legal moves from " +spot;
+        }
+        posToHighlight = fromSquare;//to highlight
+        highlightOptions.clear();
+        for (ChessMove move : moves) {
+            highlightOptions.add(move.getEndPosition());
+        }
+        redrawBoard();
+        return "highlighting legal moves from " + spot;
+    }
     //helper func::
     private ChessPosition convertSquare(String square) throws ClientException {
         //needs to be 2!!!!
