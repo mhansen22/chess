@@ -24,18 +24,16 @@ public class ServerMessage {
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this==obj){
             return true;
         }
-        if (!(o instanceof ServerMessage that)) {
+        if (!(obj instanceof ServerMessage that)) {
             return false;
         }
-        return getServerMessageType() == that.getServerMessageType();
+        return (getServerMessageType()==that.getServerMessageType());
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(getServerMessageType());

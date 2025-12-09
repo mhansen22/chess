@@ -122,7 +122,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             games.updateGame(updated);
             connections.broadcast(gameID, null,new LoadGameMessage(chessGame));//LOAD_GAME
             //NOTIFICATION
-            String moveText = user + " moved from " + formattingHelper(move.getStartPosition()) + " to " + formattingHelper(move.getEndPosition());
+            String moveText = user+" moved from "+formattingHelper(move.getStartPosition())+" to "+formattingHelper(move.getEndPosition());
             connections.broadcast(gameID,session,new NotificationMessage(moveText));
 
             ChessGame.TeamColor toMove = chessGame.getTeamTurn();//who's turn
@@ -140,6 +140,66 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.send(session, new ErrorMessage("error: " + ex.getMessage()));
             } catch (IOException ignored) {}
         } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    private void leave(Session session, UserGameCommand command) {
+        var connection = connections.get(session);
+        if (connection==null) {
+            return;
+        }
+        String username=connection.username();
+        int gameID = command.getGameID();
+        try {
+            Game game = games.getGame(gameID);
+            if (game==null){
+                throw new DataAccessException("game not found");
+            }
+            Game upToDateGame = game;
+            if (username.equals(game.whiteUser())){
+                upToDateGame = new Game(game.gameId(), null, game.blackUser(),game.gameName(),game.game());
+            } else if (username.equals(game.blackUser())) {
+                upToDateGame = new Game(game.gameId(), game.whiteUser(), null,game.gameName(), game.game()) ;
+            }
+            games.updateGame(upToDateGame);
+            connections.broadcast(gameID, session,new NotificationMessage(username + " left the game"));
+        } catch (DataAccessException ignored) {
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+        connections.remove(session);
+    }
+
+    private void resign(Session session, UserGameCommand command) {
+        var connection = connections.get(session);
+        if (connection==null){
+            return;
+        }
+        String username = connection.username();
+        int gameID = command.getGameID();
+        try {
+            Game game =games.getGame(gameID);
+            if (game==null) {
+                throw new DataAccessException("game not found");
+            }
+            ChessGame chessGame = game.game();
+            boolean whiteYes = username.equals(game.whiteUser());
+            boolean blackYes = username.equals(game.blackUser()) ;
+            //this bc observers dont resign
+            if (!whiteYes &&!blackYes) {
+                throw new DataAccessException("observers can't resign ");
+            }
+            if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) )||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))|| gamesRes.contains(gameID)){
+                throw new DataAccessException("game already over");
+            }
+            gamesRes.add(gameID);
+            connections.broadcast(gameID, null,new NotificationMessage(username +" resigned"));
+        } catch (DataAccessException ex) {
+            try {
+                connections.send(session,new ErrorMessage("error: " +ex.getMessage()));
+            } catch (IOException ignored) {}
+        } catch (IOException io){
             io.printStackTrace();
         }
     }
