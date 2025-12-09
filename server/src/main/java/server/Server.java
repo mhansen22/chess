@@ -111,12 +111,7 @@ public class Server {
             }
         });
         var wsHandler = new WebSocketHandler(auths, games);
-
-        javalin.ws("/ws", ws -> {
-            ws.onConnect(wsHandler);
-            ws.onMessage(wsHandler);
-            ws.onClose(wsHandler);
-        });
+        javalin.ws("/ws", ws -> {ws.onConnect(wsHandler); ws.onMessage(wsHandler);ws.onClose(wsHandler);});
     }
     //helper func to reduce code lines and duplicate code
     //matches error message!!

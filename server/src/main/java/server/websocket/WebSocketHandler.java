@@ -190,7 +190,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (!whiteYes &&!blackYes) {
                 throw new DataAccessException("observers can't resign ");
             }
-            if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) )||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))|| gamesRes.contains(gameID)){
+            if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) )||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) ||
+                    (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) ||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))|| gamesRes.contains(gameID)){
                 throw new DataAccessException("game already over");
             }
             gamesRes.add(gameID);
@@ -212,7 +213,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     private void moveAllowed(Game game, ChessGame chessGame, String username, ChessMove move) throws DataAccessException {
         //game not over, so ORs
-        if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE))||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK))||(chessGame.isInStalemate(ChessGame.TeamColor.WHITE))||(chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) {
+        if ((chessGame.isInCheckmate(ChessGame.TeamColor.WHITE))||(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK))||
+                (chessGame.isInStalemate(ChessGame.TeamColor.WHITE))||(chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) {
             throw new DataAccessException("game already over");
         }
         //turn logic-->
