@@ -3,19 +3,33 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import client.websocket.ServerMessageHandler;
+import client.websocket.WebSocketFacade;
 import model.AuthData;
 import model.Game;
 import java.util.*;
 import static ui.EscapeSequences.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.*;
+import websocket.messages.ServerMessage;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageHandler {
     private String currentUser = null;
     private final Map<Integer, Game> prevGameList = new HashMap<>();
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
+    private ChessPosition posToHighlight;
+    private Set<ChessPosition> highlightOptions =new HashSet<>();
+    private String authToken = null;
+    private WebSocketFacade wsF;
+    private final String serverUrl;
+    private Integer currGameId;
+    private ChessGame currGame;
+    private ChessGame.TeamColor color;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
     }
 
     public void run() {
@@ -45,8 +59,10 @@ public class ChessClient {
     private void printPrompt() {
         if (state == State.SIGNEDOUT) {
             System.out.print("\n" + RESET_TEXT_COLOR + RESET_BG_COLOR + "[LOGGED-OUT] >> ");
-        } else {
+        } else if (state == State.SIGNEDIN){
             System.out.print("\n" + RESET_TEXT_COLOR + RESET_BG_COLOR + "[LOGGED-IN] >> ");
+        } else {
+            System.out.print("\n" + RESET_TEXT_COLOR + RESET_BG_COLOR + "[CHESS GAME] >> ");
         }
     }
 
@@ -65,7 +81,7 @@ public class ChessClient {
                 case "quit" -> "quit";
                 default -> signedOutHelp();
             };
-        } else {
+        } else if (state == State.SIGNEDIN) {
             return switch (cmd) {
                 case "help" -> signedInHelp();
                 case "logout" -> logout();
@@ -76,6 +92,20 @@ public class ChessClient {
                 case "quit" -> "quit";
                 default -> signedInHelp();
             };
+        } else {
+                return switch (cmd) {
+                    case "help" -> gameHelp();
+                    case "redraw" -> {
+                        redrawBoard();
+                        yield "";
+                    }
+                    case "leave" -> leaveGame();
+                    case "move" -> makeMove(params);
+                    case "resign" -> resign();
+                    case "highlight" -> highlight(params);
+                    case "quit" -> "quit";
+                    default -> gameHelp();
+                };
         }
     }
 
@@ -83,6 +113,7 @@ public class ChessClient {
         if (params.length>=3) {
             AuthData authData = server.register(params[0], params[1],params[2]);
             this.currentUser = authData.username();
+            this.authToken = authData.authToken();
             this.state = State.SIGNEDIN;
             return "successfully registered & logged in as "+ currentUser;
         }
@@ -93,6 +124,7 @@ public class ChessClient {
         if (params.length >= 2){
             AuthData authData = server.login(params[0],params[1]);
             this.currentUser = authData.username();
+            this.authToken= authData.authToken();
             this.state = State.SIGNEDIN;
             return "successfully logged in as " +currentUser;
         }
@@ -105,6 +137,10 @@ public class ChessClient {
         this.state = State.SIGNEDOUT;
         this.currentUser = null;
         this.prevGameList.clear();
+        if (wsF != null) {
+            wsF.close();
+        }
+        wsF = null;
         return "successfully logged out!";
     }
     private String create(String... params) throws ClientException {
@@ -176,7 +212,8 @@ public class ChessClient {
             throw new ClientException("color can only be white or black!");
         }
         server.joinGame(game.gameId(), color);
-        createBoard(color);
+        connectGame(game.gameId(),color);
+//        createBoard(color);
         return "successfully joined " + game.gameName() + " as " + color;
     }
 
@@ -199,7 +236,8 @@ public class ChessClient {
         if (game==null) {
             throw new ClientException("not a real gameID...p.s. use command list to see available games ;)");
         }
-        createBoard(ChessGame.TeamColor.WHITE);
+//        createBoard(ChessGame.TeamColor.WHITE);
+        connectGame(game.gameId(), null);
         return "successfully observing "+ game.gameName();
     }
 
@@ -209,28 +247,46 @@ public class ChessClient {
         }
     }
 
-    private void createBoard(ChessGame.TeamColor color) {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        System.out.print(ERASE_SCREEN);
-        if (color==ChessGame.TeamColor.WHITE) {
-            createWhiteBoard(board);
-        } else {
-            createBlackBoard(board);
+    private void redrawBoard() {
+        if (currGame==null) {
+            System.out.println("no game loaded right now");
+            return;
         }
-        System.out.print(RESET_BG_COLOR+RESET_TEXT_COLOR +"\n");
+        System.out.print(ERASE_SCREEN);
+        var board = currGame.getBoard();
+
+        ChessGame.TeamColor playerSide;//just for observer to set them as white
+        if (color!= null) {
+            playerSide = color;
+        } else{
+            playerSide = ChessGame.TeamColor.WHITE;
+        }
+        if (playerSide ==ChessGame.TeamColor.WHITE) {
+            createWhiteBoard(board, posToHighlight, highlightOptions);
+        } else {
+            createBlackBoard(board, posToHighlight, highlightOptions);
+        }
+
+        System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR +"\n");
     }
 
-    private void createWhiteBoard(ChessBoard board) {
+    private void createWhiteBoard(ChessBoard board, ChessPosition spot, Set<ChessPosition> possibleMoves) {
         System.out.println("    a  b  c  d  e  f  g  h");//top, letters
         for (int row = 8; row >= 1; row--) {
             System.out.print(" " + row + " ");//nums, left
             for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
                 String squareColor;
-                if (((row+col) % 2) == 0){
-                    squareColor = SET_BG_COLOR_DARK_GREY;
+                if ((spot != null) &&(spot.equals(position))) {
+                    squareColor= SET_BG_COLOR_GREEN;
+                } else if ((possibleMoves != null) && (possibleMoves.contains(position))) {
+                    squareColor= SET_BG_COLOR_YELLOW;
                 } else {
-                    squareColor = SET_BG_COLOR_LIGHT_GREY;
+                    if (((row+col) % 2) == 0){
+                        squareColor = SET_BG_COLOR_DARK_GREY;
+                    } else {
+                        squareColor = SET_BG_COLOR_LIGHT_GREY;
+                    }
                 }
                 ChessPiece piece = board.getPiece(new ChessPosition(row,col));
                 System.out.print(squareColor +getIcon(piece));
@@ -239,26 +295,33 @@ public class ChessClient {
         }
         System.out.println("    a  b  c  d  e  f  g  h");//bottom
     }
-    private void createBlackBoard(ChessBoard board) {
+
+    private void createBlackBoard(ChessBoard board, ChessPosition spot, Set<ChessPosition> possibleMoves) {
         System.out.println("    h  g  f  e  d  c  b  a");
         for (int row = 1; row <= 8; row++) {
             System.out.print(" " +row+ " ");
             for (int col = 1;col <= 8; col++) {
                 int col2 = (9-col);
+                ChessPosition position = new ChessPosition(row, col2);
                 String squareColor;
-                if ((row+col2) % 2 == 0){
-                    squareColor = SET_BG_COLOR_DARK_GREY;
+                if ((spot != null) &&(spot.equals(position))) {
+                    squareColor= SET_BG_COLOR_GREEN;
+                } else if ((possibleMoves != null) && (possibleMoves.contains(position))) {
+                    squareColor= SET_BG_COLOR_YELLOW;
                 } else {
-                    squareColor = SET_BG_COLOR_LIGHT_GREY;
+                    if (((row+col2) % 2) == 0){
+                        squareColor = SET_BG_COLOR_DARK_GREY;
+                    } else {
+                        squareColor = SET_BG_COLOR_LIGHT_GREY;
+                    }
                 }
-                ChessPiece piece= board.getPiece(new ChessPosition(row,col2));
+                ChessPiece piece= board.getPiece(position);
                 System.out.print(squareColor +getIcon(piece));
             }
             System.out.print(RESET_BG_COLOR + " " + row+"\n");
         }
         System.out.println("    h  g  f  e  d  c  b  a");
     }
-
     //Postlogin UI
     private String signedInHelp() {
         return """
@@ -280,6 +343,17 @@ public class ChessClient {
               help - for possible commands
             """;
     }
+    //during game UI
+    private String gameHelp() {
+        return """
+             redraw - redraw the board
+             move <source> <destination> - make a move (ex: move a2 a4)
+             highlight <position>  - show legal moves for a piece (ex: highlight a2)
+             leave - leave game and go back to lobby
+             resign - resign the game
+             help - for possible commands
+           """;
+    }
 
     private String getIcon(ChessPiece piece) {
         if (piece==null) {
@@ -295,5 +369,41 @@ public class ChessClient {
             case PAWN -> whiteBool ? WHITE_PAWN : BLACK_PAWN;
             default -> EMPTY;
         };
+    }
+
+    private void connectGame(int gameID, ChessGame.TeamColor color) throws ClientException {
+        if (authToken==null) {
+            throw new ClientException("you need to be logged in to join a game");
+        }
+        this.currGameId = gameID;
+        this.color = color;
+        //WS url building-->
+        String wsUrl = serverUrl.replaceFirst("^http","ws")+ "/ws";
+        this.wsF= new WebSocketFacade(wsUrl, this);
+        UserGameCommand connectCmd = new UserGameCommand(UserGameCommand.CommandType.CONNECT,authToken,gameID);
+        wsF.send(connectCmd) ;
+        this.state = State.GAMEPLAY;
+    }
+
+    @Override
+    public void handle(ServerMessage message) {
+        ServerMessage.ServerMessageType messageType= message.getServerMessageType();
+        switch (messageType) {
+            case LOAD_GAME:
+                LoadGameMessage gameMessage = (LoadGameMessage)message;
+                currGame = gameMessage.getGame();
+                redrawBoard();
+                break;
+            case NOTIFICATION:
+                NotificationMessage notification = (NotificationMessage)message;
+                System.out.println("\n"+notification.getMessage());
+                printPrompt();
+                break;
+            case ERROR:
+                ErrorMessage error = (ErrorMessage) message;
+                System.out.println("\nerror: "+error.getErrorMessage());
+                printPrompt();
+                break;
+        }
     }
 }
