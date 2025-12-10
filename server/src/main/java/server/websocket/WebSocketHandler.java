@@ -134,14 +134,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(gameID,session,new NotificationMessage(moveText));
 
             ChessGame.TeamColor toMove = chessGame.getTeamTurn();//who's turn
+            String playerToMove;
+            if (toMove==ChessGame.TeamColor.WHITE) {
+                playerToMove = game.whiteUser();
+            } else {
+                playerToMove = game.blackUser();
+            }
+            //safety, if its null just white or black is fine
+            if (playerToMove == null) {
+                playerToMove = toMove.toString().toLowerCase();
+            }
             if (chessGame.isInCheckmate(toMove)) {
-                connections.broadcast(gameID, null,new NotificationMessage(toMove +" in checkmate"));
+                connections.broadcast(gameID, null,new NotificationMessage(playerToMove +" in checkmate"));
                 gamesRes.add(gameID);//game done
             } else if (chessGame.isInStalemate(toMove)) {
                 connections.broadcast(gameID, null,new NotificationMessage("stalemate"));
                 gamesRes.add(gameID);
             } else if (chessGame.isInCheck(toMove)) {
-                connections.broadcast(gameID, null,new NotificationMessage(toMove + " in check"));
+                connections.broadcast(gameID, null,new NotificationMessage(playerToMove + " in check"));
             }
         } catch (DataAccessException |InvalidMoveException ex) {
             try {

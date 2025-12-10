@@ -467,7 +467,7 @@ public class ChessClient implements ServerMessageHandler {
         String spot = params[0].toLowerCase().trim();
         ChessPosition fromSquare = convertSquare(spot);
         Collection<ChessMove> moves = currGame.validMoves(fromSquare);
-        if ((moves==null) || (moves.isEmpty())){
+        if ((moves==null)||(moves.isEmpty())){
             posToHighlight = null;
             highlightOptions.clear();
             redrawBoard();
@@ -492,7 +492,7 @@ public class ChessClient implements ServerMessageHandler {
         int col = ((colLetter -'a')+1);//letter to col#
         int row = (rowNumber -'0');//number char to num
         if ((col < 1) ||(col > 8)|| (row > 8)||(row < 1 )) {
-            throw new ClientException("position is out of range " + square);
+            throw new ClientException("wrong format!!");
         }
         return new ChessPosition(row, col);
     }
