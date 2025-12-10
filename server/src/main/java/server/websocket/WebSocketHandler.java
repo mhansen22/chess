@@ -79,13 +79,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (game==null) {
                 throw new DataAccessException("game not found");
             }
+            String colorOrRole;
+            if (user.equals(game.whiteUser())) {
+                colorOrRole= "white";
+            } else if (user.equals(game.blackUser()) ) {
+                colorOrRole= "black";
+            } else{
+                colorOrRole= "observer";
+            }
             connections.add(session, user, gameID);//reg
             connections.send(session,new LoadGameMessage(game.game()));//LOAD_GAME
-            String notification = user + " joined the game "+game.gameName();//NOTIFICATION
+            String notification = user + " joined the game as "+colorOrRole;//NOTIFICATION
             connections.broadcast(gameID, session,new NotificationMessage(notification)) ;
         } catch (DataAccessException ex){
             try {
-                connections.send(session, new ErrorMessage("error: " + ex.getMessage()));
+                connections.send(session, new ErrorMessage(ex.getMessage()));
             } catch (IOException ignored) {}
         } catch (IOException io) {
             io.printStackTrace();
@@ -137,7 +145,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (DataAccessException |InvalidMoveException ex) {
             try {
-                connections.send(session, new ErrorMessage("error: " + ex.getMessage()));
+                connections.send(session, new ErrorMessage(ex.getMessage()));
             } catch (IOException ignored) {}
         } catch (IOException io) {
             io.printStackTrace();
@@ -199,7 +207,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(gameID, null,new NotificationMessage(username +" resigned"));
         } catch (DataAccessException ex) {
             try {
-                connections.send(session,new ErrorMessage("error: " +ex.getMessage()));
+                connections.send(session,new ErrorMessage(ex.getMessage()));
             } catch (IOException ignored) {}
         } catch (IOException io){
             io.printStackTrace();

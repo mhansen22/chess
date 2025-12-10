@@ -97,6 +97,8 @@ public class ChessClient implements ServerMessageHandler {
                 return switch (cmd) {
                     case "help" -> gameHelp();
                     case "redraw" -> {
+                        posToHighlight = null;
+                        highlightOptions.clear();
                         redrawBoard();
                         yield "";
                     }
@@ -348,8 +350,8 @@ public class ChessClient implements ServerMessageHandler {
     private String gameHelp() {
         return """
              redraw - redraw the board
-             move <source> <destination> - make a move (ex: move a2 a4)
-             highlight <position>  - show legal moves for a piece (ex: highlight a2)
+             move <source> <destination> - make a move
+             highlight <position>  - show legal moves for a piece
              leave - leave game and go back to lobby
              resign - resign the game
              help - for possible commands
@@ -397,18 +399,18 @@ public class ChessClient implements ServerMessageHandler {
         currGameId = null;
         color= null;
         state= State.SIGNEDIN;
-        return "left game";
+        return "you left the game";
     }
 
     private String resign() throws ClientException {
         if (wsF==null) {
             return "no active game";
         }
-        System.out.print("are you sure you want to resign?(type: y or n)");
+        System.out.print("are you sure you want to resign?(type: y or n) ");
         Scanner scanner = new Scanner(System.in);
         String answer = scanner.nextLine().trim().toLowerCase();
         if ((!answer.equals("y"))&&(!answer.equals("yes"))){
-            return "did not resign";
+            return "you did not resign";
         }
         UserGameCommand resignC = new UserGameCommand(UserGameCommand.CommandType.RESIGN,authToken, currGameId);
         wsF.send(resignC);
@@ -426,7 +428,27 @@ public class ChessClient implements ServerMessageHandler {
         String toSquare = params[1];
         ChessPosition startPos = convertSquare(fromSquare);
         ChessPosition endPos = convertSquare(toSquare);
-        ChessMove move = new ChessMove(startPos, endPos,null);
+
+        ChessPiece piece = currGame.getBoard().getPiece(startPos);
+        ChessPiece.PieceType promotion = null;
+        if ((piece!=null) && (piece.getPieceType()==ChessPiece.PieceType.PAWN)) {
+           if (((piece.getTeamColor() == ChessGame.TeamColor.WHITE) && (endPos.getRow()==8))||
+                   ((piece.getTeamColor()==ChessGame.TeamColor.BLACK)&&(endPos.getRow()==1))) {
+                if (params.length>=3) {//move a7 a8 r
+                    String text = params[2].toLowerCase();
+                    switch (text){
+                        case "q" -> promotion= ChessPiece.PieceType.QUEEN;
+                        case "r" -> promotion= ChessPiece.PieceType.ROOK;
+                        case "b" -> promotion= ChessPiece.PieceType.BISHOP;
+                        case "n" -> promotion= ChessPiece.PieceType.KNIGHT;
+                        default -> throw new ClientException("promotion must be q, r, b, or n");
+                    }
+                } else {
+                    promotion= ChessPiece.PieceType.QUEEN;
+                }
+            }
+        }
+        ChessMove move = new ChessMove(startPos, endPos,promotion);
 
         UserGameCommand moveC = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,currGameId,move);
         wsF.send(moveC);
@@ -479,6 +501,7 @@ public class ChessClient implements ServerMessageHandler {
         ServerMessage.ServerMessageType messageType= message.getServerMessageType();
         switch (messageType) {
             case LOAD_GAME:
+                System.out.println();
                 LoadGameMessage gameMessage = (LoadGameMessage)message;
                 currGame = gameMessage.getGame();
                 redrawBoard();
